@@ -5,9 +5,9 @@ Pages at: https://kadejc.github.io/breckinridge-disc-golf-club/
 
 The site started as a single stats dashboard built iteratively in Anthropic's Cowork mode
 (dozens of small feature/bugfix requests over one long session), then grew into a multi-page
-site (About, Resources, Stats, Gallery, Contact, Events, Membership, Rules & Etiquette, News) in
-Claude Code. This file exists so a fresh Claude Code session in this repo has full context
-without the user having to re-explain everything.
+site (About, Resources, Stats, Gallery, Contact, Events, Rules & Etiquette, News — **no
+Membership**, see below) in Claude Code. This file exists so a fresh Claude Code session in this
+repo has full context without the user having to re-explain everything.
 
 ## Site structure
 
@@ -21,11 +21,16 @@ per top-level section — the user explicitly asked for each dropdown option to 
   and Events → Past Results deep-link into this page's tabs (`stats.html#playertable` etc.)
   rather than getting their own page — they're views into one shared data app, not separate
   content, so splitting them into files would mean duplicating the embedded dataset per page.
-- `about/`, `resources/`, `gallery/`, `contact/`, `events/`, `membership/`, `rules-etiquette/`,
-  `news/` — one subdirectory per top-level nav item, one `.html` file per dropdown sub-item
-  inside it (e.g. `about/who-we-are.html`, `about/course-info.html`, ...). Dropdown items that
-  are pure external redirects (Book the course, Local Rules, PDGA Rules, Apply to help, Social
-  Media, Tournament Schedule) have no page — the nav link goes straight to the external URL.
+- `about/`, `resources/`, `gallery/`, `contact/`, `events/`, `rules-etiquette/`, `news/` — one
+  subdirectory per top-level nav item, one `.html` file per dropdown sub-item inside it (e.g.
+  `about/who-we-are.html`, `about/course-info.html`, ...). Dropdown items that are pure external
+  redirects (Book the course, Local Rules, PDGA Rules, Apply to help, Social Media, Tournament
+  Schedule) have no page — the nav link goes straight to the external URL. **There is no
+  Membership section** — the user had it removed 2026-07-17 (dropdown item, all 3 sub-pages,
+  and `membership/`/`site/membership/` deleted). Rules & Etiquette also lost its Course
+  Etiquette sub-item the same day (removed by request) — that dropdown now only has the two
+  external links (Local Rules, PDGA Rules), so `rules-etiquette/` has no internal page of its
+  own either.
 - `shared/site.css` — single source of truth for CSS: color variables, base styles, the
   dropdown nav, footer, and generic page components (`.hero`, `.page-section`, `.card`,
   `.placeholder-note`, `.data-table`, `.photo-grid`, etc). Marketing pages link it externally;
@@ -52,12 +57,18 @@ per top-level section — the user explicitly asked for each dropdown option to 
 - **Always edit `site/**/*.html` + `shared/*`, then run `npm run build:site` (or `npm run build`
   for everything).** Never hand-edit the generated root/subdirectory HTML pages.
 
-**Placeholder content:** many dropdown sub-items were stood up with a `.placeholder-note`
-("... coming soon") since the user hadn't supplied content yet as of this writing — e.g. Admins,
-Sponsors, FAQ, Club Bylaws, payout tables, Newsletter Signup, Calendar, Membership Tiers/Dues,
-Renew, Member Perks, Course Etiquette, Announcements, Tournament Recaps, and the Course Records
-stats tab. Check with the user before assuming any of these still need content — search for
-`placeholder-note` across `site/**/*.html` and `src/body.html` to find them all.
+**Placeholder content still outstanding** (as of 2026-07-17): FAQ, Club Bylaws, Newsletter
+Signup, Calendar, Announcements, Tournament Recaps, and the bio text for each Admin (headshots
+are placeholders too — real photos need to be supplied) and the description/logo for each
+Sponsor. Search for `placeholder-note` across `site/**/*.html` and `src/body.html` to find them
+all; that search should return exactly these.
+
+**No longer placeholders** (real content added 2026-07-17): Admins (Kade Capps, Sean Temple, Ace
+Wall — headshot + bio *slots* exist, but only names are real, bios/photos still pending),
+Sponsors (Replay Sports Gear, Hooligan Discs — same: slots exist, logos/descriptions pending;
+"Become a Sponsor" copy about donating a weekly closest-to-the-pin prize is real), Our Payout
+Tables (pulled from `Breck_Payout_Calculator_Advanced.xlsx`, see below), and the Course Records
+stats tab (real computation, see "Stats dashboard" below).
 
 ## Stats dashboard build system (added in Claude Code, post-handoff)
 
@@ -213,8 +224,42 @@ DOM by hand. As of 2026-07-17 there's a real scraper:
   via `activateTab()` in `src/app.js`; a `hashchange` listener also re-activates the tab if
   you're already on the page and click a Stats/Past Results dropdown link. The "Events" tab's
   `data-tab` is still `events` (unchanged) even though its label was renamed to "Past Results" —
-  don't break that link contract, `shared/site-header.html` and `site/events.html` both point
-  at `stats.html#events`.
+  don't break that link contract, `shared/site-header.html` and `site/events/calendar.html`
+  both point at `stats.html#events`.
+- **Past Results (Events tab) groups by division, not by card**: clicking an event expands its
+  results grouped into one table per division (sorted `MPO, MA1, MA3, MA40, MP40, FA1, FA3, AM,
+  free/Free/FREE`, via `compareDivisions()` in `src/app.js`), each sorted by to-par. It used to
+  group by physical card/tee-time group instead, which mixed divisions together and made it
+  impossible to see a clean per-division leaderboard — changed 2026-07-17 by request. Reuse
+  `compareDivisions()` for any other division-ordering need instead of re-declaring the order
+  array (`DIVISIONS` itself is now just `[...unique divisions].sort(compareDivisions)`).
+- **Course Records tab** (`renderCourseRecords()` in `src/app.js`) shows the top 5 best rounds
+  by to-par, per division, respecting the same global year/season/division filters as every
+  other tab. **For every division except MPO, each player's chronologically-first round ever
+  played in that specific division is excluded** from record consideration — a debut round
+  isn't representative, and this was an explicit user rule (2026-07-17). That "first round"
+  lookup always scans the *full, unfiltered* `ROUNDS` array (a player's real debut doesn't
+  depend on which year/season filter happens to be active), even though the records list itself
+  respects the filters. Don't apply this exclusion to MPO.
+- **Our Payout Tables** (`resources/payout-tables.html`) data was pulled from
+  `C:\Users\kadec\OneDrive\Documents\Breck_Payout_Calculator_Advanced.xlsx` (outside this repo,
+  on the user's machine — not a URL, not committed) on 2026-07-17: the `MPO_Pay`, `MP40_Pay`,
+  `MA1_Pay`, `MA3-FA3_Pay`, and `Side_Pay` sheets, each a lookup table of payout-by-position for
+  2-50 (2-30 for Side) players. Baked into the page as static HTML (client-pays-by-count doesn't
+  change often); if the user updates the spreadsheet, regenerate by re-reading those 5 sheets
+  with openpyxl and rebuilding the same `payout-tabs`/`payout-panel` structure — don't hand-edit
+  the generated table rows. "Side" is an optional side-pot division; its exact rules weren't in
+  the spreadsheet and weren't asked about, so the page doesn't explain it beyond the label.
+- **Course Info hole videos are click-to-play in a modal**, not always-embedded. Originally all
+  18 flyover videos were embedded inline in a grid (heavy — 18 iframes on page load); changed
+  2026-07-17 to a single shared modal (`#holeVideoOverlay` in `site/about/course-info.html`)
+  triggered by clicking a hole number in the hole table (`.hole-video-btn`, carries
+  `data-video-id`/`data-hole`). Closing the modal clears the iframe's `innerHTML` (not just
+  hides it) specifically so playback actually stops instead of continuing off-screen.
+- **Person/logo placeholder pattern** (`.headshot-placeholder`, `.logo-placeholder` in
+  `shared/site.css`): a dashed-border box with "Photo/Logo coming soon" text, used on
+  `about/admins.html` and `about/sponsors.html`. Real images replace these divs with an `<img>`
+  when the user supplies them — don't invent placeholder image files.
 
 ## Deployment
 
@@ -234,7 +279,8 @@ files by hand each time.
    `npm run build`.
 3. ~~Install Playwright and add smoke tests.~~ Done — `tests/smoke.spec.js` (run via
    `npm test`), covers: home page loads clean, every nav dropdown opens and every internal link
-   resolves 200, stats.html tabs render + hash deep-linking, course-info video embeds, course
+   resolves 200, stats.html tabs render + hash deep-linking, division-grouped Past Results,
+   Course Records renders, course-info hole-video modal opens/closes and stops playback, course
    map image loads, mobile hamburger nav. Uses `scripts/serve.js` (a tiny dependency-free static
    server) instead of `python -m http.server` so it works the same in CI as locally. This was
    impossible in the Cowork sandbox (no headless browser available, network-restricted) and is
@@ -251,7 +297,8 @@ files by hand each time.
    user supplies content.
 7. Gallery/Ace Gallery photos: user decided (2026-07-17) **not** to import UDisc's 35 course
    photos — they're community-submitted via UDisc's "Add photos" feature with no visible
-   attribution/license, so republishing them carries copyright risk. `gallery.html` stays a
-   placeholder until the user supplies photos they actually have rights to.
+   attribution/license, so republishing them carries copyright risk. `gallery/photos.html` and
+   `gallery/ace-gallery.html` stay placeholders until the user supplies photos they actually
+   have rights to.
 8. Run `npm run scrape -- --write` periodically (or wire it into a scheduled GitHub Action) to
    pick up new Weekly Mini events automatically instead of running it by hand.

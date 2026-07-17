@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 
 const NAV_ITEMS = [
   'About', 'Resources', 'Stats', 'Gallery', 'Contact',
-  'Events', 'Membership', 'Rules & Etiquette', 'News',
+  'Events', 'Rules & Etiquette', 'News',
 ];
 
 test('home page loads with no console errors', async ({ page }) => {
@@ -36,7 +36,7 @@ test('every nav dropdown opens and every internal link resolves', async ({ page,
     }
     await button.click(); // close it again before opening the next one
   }
-  expect(checked.size).toBeGreaterThanOrEqual(19); // one page per non-external dropdown item
+  expect(checked.size).toBeGreaterThanOrEqual(15); // one page per non-external dropdown item
 });
 
 test('stats dashboard tabs render and deep-link via hash', async ({ page }) => {
@@ -55,14 +55,35 @@ test('stats dashboard tabs render and deep-link via hash', async ({ page }) => {
   await expect(page.locator('#panel-events')).toHaveClass(/active/);
   await expect(page.locator('.tab.active')).toHaveText('Past Results');
 
+  // Expanding an event groups its results by division (not by physical card/tee-time group).
+  await page.locator('.event-block').first().click();
+  const headings = page.locator('.event-block').first().locator('.event-detail h4');
+  await expect(headings.first()).toBeVisible();
+  const headingTexts = await headings.allTextContents();
+  const known = ['MPO', 'MA1', 'MA3', 'MP40', 'FA3', 'Free'];
+  for (const h of headingTexts) expect(known).toContain(h);
+
+  await page.goto('/stats.html#courserecords');
+  await expect(page.locator('#panel-courserecords')).toHaveClass(/active/);
+  await expect(page.locator('#courseRecordsOut .card').first()).toBeVisible();
+
   expect(errors).toEqual([]);
 });
 
-test('course info page embeds all 18 hole flyover videos', async ({ page }) => {
+test('course info page has 18 hole video buttons that open a modal player', async ({ page }) => {
   await page.goto('/about/course-info.html');
-  const iframes = page.locator('.video-embed iframe');
-  await expect(iframes).toHaveCount(18);
-  await expect(iframes.first()).toHaveAttribute('src', /youtube\.com\/embed\//);
+  const buttons = page.locator('.hole-video-btn');
+  await expect(buttons).toHaveCount(18);
+
+  const overlay = page.locator('#holeVideoOverlay');
+  await expect(overlay).not.toHaveClass(/open/);
+  await buttons.first().click();
+  await expect(overlay).toHaveClass(/open/);
+  await expect(overlay.locator('iframe')).toHaveAttribute('src', /youtube\.com\/embed\//);
+
+  await page.locator('#holeVideoClose').click();
+  await expect(overlay).not.toHaveClass(/open/);
+  await expect(overlay.locator('iframe')).toHaveCount(0); // playback stopped, not just hidden
 });
 
 test('resources course map image loads', async ({ page, request }) => {

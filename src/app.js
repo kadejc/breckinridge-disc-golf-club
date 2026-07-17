@@ -54,15 +54,15 @@ const PLAYER_NAMES = Array.from(new Set(ROUNDS.map(r=>r.name))).sort((a,b)=>a.lo
 
 // ---------- global season + year + division filters (apply across every tab) ----------
 const ALL_YEARS = Array.from(new Set(EVENTS.map(ev=>ev[2] && ev[2].slice(0,4)).filter(Boolean))).sort((a,b)=>b.localeCompare(a));
-const DIVISIONS = Array.from(new Set(ROUNDS.map(r=>r.div).filter(d=>d && /^[A-Za-z]/.test(d))))
-  .sort((a,b)=>{
-    const order = ['MPO','MA1','MA3','MA40','MP40','FA1','FA3','AM','free','Free','FREE'];
-    const ia = order.indexOf(a), ib = order.indexOf(b);
-    if(ia!==-1 && ib!==-1) return ia-ib;
-    if(ia!==-1) return -1;
-    if(ib!==-1) return 1;
-    return a.localeCompare(b);
-  });
+function compareDivisions(a, b){
+  const order = ['MPO','MA1','MA3','MA40','MP40','FA1','FA3','AM','free','Free','FREE'];
+  const ia = order.indexOf(a), ib = order.indexOf(b);
+  if(ia!==-1 && ib!==-1) return ia-ib;
+  if(ia!==-1) return -1;
+  if(ib!==-1) return 1;
+  return a.localeCompare(b);
+}
+const DIVISIONS = Array.from(new Set(ROUNDS.map(r=>r.div).filter(d=>d && /^[A-Za-z]/.test(d)))).sort(compareDivisions);
 
 let selectedYears = new Set(ALL_YEARS);
 let selectedDivisions = new Set(DIVISIONS);
@@ -284,14 +284,24 @@ function renderEvents(filter){
         const ev = EVENTS.find(x=>x[0]===slug);
         const cards = ev[4];
         let dh = '';
-        if(cards.length===0){ dh = '<p class="muted">No cards published for this event.</p>'; }
+        // Group by division rather than by card: cards are just physical tee-time groupings
+        // (often mixed-division), not useful for seeing who won each division that week.
+        const byDiv = {};
         for(const card of cards){
-          const [cardNum, startHole, startTime, players] = card;
-          dh += '<div class="card-group"><h4>Card '+cardNum+' · started hole '+startHole+' · '+startTime+'</h4>';
-          dh += '<table><thead><tr><th>Pos</th><th>Name</th><th>Div</th><th>To Par</th><th>Rating</th></tr></thead><tbody>';
-          const sorted = [...players].sort((a,b)=>(a[3]===null?999:a[3])-(b[3]===null?999:b[3]));
+          for(const p of card[3]){
+            if(!p[1]) continue;
+            const div = p[2] || 'Unlisted';
+            (byDiv[div] = byDiv[div] || []).push(p);
+          }
+        }
+        const divsPresent = Object.keys(byDiv).sort(compareDivisions);
+        if(divsPresent.length===0){ dh = '<p class="muted">No scores logged for this event.</p>'; }
+        for(const div of divsPresent){
+          dh += '<div class="card-group"><h4>'+div+'</h4>';
+          dh += '<table><thead><tr><th>Pos</th><th>Name</th><th>To Par</th><th>Rating</th></tr></thead><tbody>';
+          const sorted = [...byDiv[div]].sort((a,b)=>(a[3]===null?999:a[3])-(b[3]===null?999:b[3]));
           for(const p of sorted){
-            dh += '<tr><td>'+(p[0]||'')+'</td><td>'+p[1]+'</td><td>'+(p[2]||'')+'</td><td>'+toParPillHtml(p[3])+'</td><td>'+(p[6]||'')+'</td></tr>';
+            dh += '<tr><td>'+(p[0]||'')+'</td><td>'+p[1]+'</td><td>'+toParPillHtml(p[3])+'</td><td>'+(p[6]||'')+'</td></tr>';
           }
           dh += '</tbody></table></div>';
         }
@@ -501,6 +511,51 @@ function renderTopWinners(){
   el.innerHTML = html;
 }
 renderTopWinners();
+
+// ---------- Course Records ----------
+function renderCourseRecords(){
+  const season = getSeasonFilter();
+  let rounds = ROUNDS;
+  if(season) rounds = rounds.filter(r=>r.season===season);
+  rounds = rounds.filter(r=>matchesYear(r.date) && matchesDivision(r.div) && r.toPar!==null && r.toPar!==undefined);
+  const el = document.getElementById('courseRecordsOut');
+
+  const byDiv = {};
+  for(const r of rounds){
+    if(!r.div) continue;
+    (byDiv[r.div] = byDiv[r.div] || []).push(r);
+  }
+  const divsToShow = DIVISIONS.filter(d=>byDiv[d]);
+  if(divsToShow.length === 0){
+    el.innerHTML = '<p class="muted">No rounds logged for '+seasonLabel()+'.</p>';
+    return;
+  }
+
+  // For every division except MPO, each player's chronologically-first round in that division
+  // (across the whole dataset, not just the current filter scope) is excluded from record
+  // consideration -- a debut round in a division isn't a representative best.
+  let html = '<div class="row muted" style="margin-bottom:10px">Scope: '+seasonLabel()+'. Best rounds by to-par, per division. For every division except MPO, each player\'s first round ever played in that division is excluded.</div>';
+  for(const div of divsToShow){
+    let entries = byDiv[div];
+    if(div !== 'MPO'){
+      const firstRoundByPlayer = {};
+      for(const r of ROUNDS){
+        if(r.div !== div || !r.name) continue;
+        if(!firstRoundByPlayer[r.name] || r.date < firstRoundByPlayer[r.name].date) firstRoundByPlayer[r.name] = r;
+      }
+      entries = entries.filter(r => firstRoundByPlayer[r.name] !== r);
+    }
+    entries = entries.slice().sort((a,b)=> a.toPar - b.toPar || a.date.localeCompare(b.date)).slice(0,5);
+    if(entries.length === 0) continue;
+    html += '<div class="card"><h3 style="margin-top:0">'+div+'</h3><table><thead><tr><th>#</th><th>Player</th><th>To Par</th><th>Date</th><th>Event</th></tr></thead><tbody>';
+    entries.forEach((e,i)=>{
+      html += '<tr><td>'+(i+1)+'</td><td>'+e.name+'</td><td>'+toParPillHtml(e.toPar)+'</td><td>'+e.date+'</td><td>'+e.title+'</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+  el.innerHTML = html || '<p class="muted">No qualifying rounds for '+seasonLabel()+'.</p>';
+}
+renderCourseRecords();
 
 // ---------- Player Table (full stats grid) ----------
 function computeHoleAgg(rounds){
@@ -725,6 +780,7 @@ function refreshAllScopedTabs(){
   refreshEvents();
   renderHoleStats();
   renderTopWinners();
+  renderCourseRecords();
   renderPlayerTable();
   if(currentPlayerName){ renderPlayer(currentPlayerName); }
   const a = document.getElementById('h2hA').value.trim();
