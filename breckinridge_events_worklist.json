@@ -1,0 +1,836 @@
+{
+  "league_slug": "breckinridge-dgc-kwxbSd",
+  "league_name": "Breckinridge DGC",
+  "date_range": "2024-03-12 to present",
+  "total_raw_events": 132,
+  "qualifying_events": 101,
+  "exclusion_reasons": {
+    "location": "Event held at a substitute course (Shawnee Park, B.B. Owen DGC) instead of Breckinridge Park DGC",
+    "doubles": "Event was a doubles/dubs format (Draw Dubs, BYOP Dubs, Draw Doubles, Avoid The Rain Doubles, BB Dubs, etc.)",
+    "canceled": "Event was canceled, no rounds played"
+  },
+  "events": [
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-yslfQL",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-07-14"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-kHID2X",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-07-07"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-GQI88n",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-06-30"
+    },
+    {
+      "slug": "breckinridge-dgc-moved-to-shawnee-all-welcome-3ILcXJ",
+      "title": "Moved To Shawnee - All Welcome!!!",
+      "keep": false,
+      "reason": "location",
+      "date": "2026-06-23"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-neHTxn",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-06-16"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-AzkzkD",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-06-09"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-9DY5ep",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-06-02"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-3TGAgk",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2026-05-26"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-zX9izf",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2026-05-19"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-rDec8K",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-05-12"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-Be20VA",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-05-05"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-nz33Lr",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2026-04-28"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-JK9Zlr",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2026-04-21"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-NgmUXm",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-04-14"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-QNOuMY",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-04-07"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-1q9Xeq",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-03-31"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-sqAQrq",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-03-24"
+    },
+    {
+      "slug": "breckinridge-dgc-opening-mini-all-welcome-O6UGBX",
+      "title": "Opening Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2026-03-17"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-6oiix1",
+      "title": "Weekly mini - ALL Welcome!!!",
+      "keep": true,
+      "date": "2026-03-10"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-QxKvtT",
+      "title": "Weekly mini - ALL Welcome!!!",
+      "keep": true,
+      "date": "2026-03-03"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-i1aetT",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2026-02-24"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-G5XtyV",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2026-02-17"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-0fyhKQ",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2026-02-10"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-kDYine",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2026-02-03"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-GY4xcB",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2026-01-27"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-CcYuo7",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2026-01-20"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-jKaPCo",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2026-01-13"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-4TRu99",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2026-01-06"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-Yrq6V8",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-12-30"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-B6spOF",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-12-23"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-NoM7sW",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-12-16"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-5vKSFI",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-12-09"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-GXkQ9N",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-12-02"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-eh3TGz",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-11-25"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-54jqpD",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-11-18"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-ZfokkM",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-11-11"
+    },
+    {
+      "slug": "breckinridge-dgc-wade-messed-up-bb-dubs-ozHdrb",
+      "title": "Wade messed Up BB Dubs",
+      "keep": false,
+      "reason": "location+doubles",
+      "date": "2025-11-10"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-Lx8haa",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-11-04"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-pzX79V",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-10-28"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-9i4DRQ",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-10-21"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-Wt0Wkn",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-10-14"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-QINiPg",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-10-07"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-Ua1H3H",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-09-30"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-myz4uz",
+      "title": "Weekly mini - ALL WELCOME!!!",
+      "keep": true,
+      "date": "2025-09-23"
+    },
+    {
+      "slug": "breckinridge-dgc-season-finale-ace-race-members-only-CVA2T1",
+      "title": "Season Finale - Ace Race!!! - Members Only",
+      "keep": true,
+      "date": "2025-09-16"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-7AWVOW",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-09-09"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-4RyVYV",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-09-02"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-uXGuXF",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-08-26"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-zsHgoX",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-08-19"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-rrcIl2",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2025-08-12"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-AoUvnu",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-08-05"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-okgRrH",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-07-29"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-4kEtgZ",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-07-22"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-mvfDDV",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-07-15"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-tLMBzm",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-07-08"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-gVPULj",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-07-01"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-Svs8to",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2025-06-24"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-Y8jEP5",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-06-17"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-xt56ej",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-06-10"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-SOKdCF",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-06-03"
+    },
+    {
+      "slug": "breckinridge-dgc-supplementary-draw-dubs-all-welcome-zd4jI3",
+      "title": "Supplementary Draw Dubs - All Welcome!!!",
+      "keep": false,
+      "reason": "doubles",
+      "date": "2025-05-27"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-QeDX8M",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-05-20"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-Qy87sE",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-05-13"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-JDhgJJ",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2025-05-06"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-FlpYF1",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-04-29"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-O5vh5w",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-04-22"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-fz1jY3",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-04-15"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-wiMhES",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-04-08"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-goRA0S",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-04-01"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-hABJ7h",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-03-25"
+    },
+    {
+      "slug": "breckinridge-dgc-shawnee-dubs-pOJGvM",
+      "title": "Shawnee dubs",
+      "keep": false,
+      "reason": "location+doubles",
+      "date": "2025-03-20"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-vtZ6O6",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-03-18"
+    },
+    {
+      "slug": "breckinridge-dgc-opening-mini-all-welcome-CALoTp",
+      "title": "OPENING MINI!!! - ALL WELCOME",
+      "keep": true,
+      "date": "2025-03-11"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-tVEJpj",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2025-03-04"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-2BKFSI",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-02-25"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-9tIhPf",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2025-02-04"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-hDsglK",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-01-28"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-PXCmbw",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2025-01-21"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-qOHxYc",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-01-14"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-pDKtw7",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2025-01-07"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-4ld6DZ",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-12-31"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-CqRJQb",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2024-12-24"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-FoImZu",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-12-17"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-Dth5uF",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-12-10"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-ARATV6",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-12-03"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-AcvnkL",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled",
+      "date": "2024-11-26"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-OvrE2X",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-11-19"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-IUM0vj",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-11-12"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-dMWXDb",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-11-05"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-TjyOWS",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-10-29"
+    },
+    {
+      "slug": "breckinridge-dgc-dubs-Xx50ws",
+      "title": "Dubs",
+      "keep": false,
+      "reason": "canceled+doubles",
+      "date": "2024-10-25"
+    },
+    {
+      "slug": "breckinridge-dgc-glow-mini-all-welcome-qo6YXt",
+      "title": "Glow Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-10-22"
+    },
+    {
+      "slug": "breckinridge-dgc-dubs-vxE6Am",
+      "title": "Dubs",
+      "keep": false,
+      "reason": "canceled+doubles",
+      "date": "2024-10-18"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-6oecyu",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-10-15"
+    },
+    {
+      "slug": "breckinridge-dgc-dubs-aI3er1",
+      "title": "Dubs",
+      "keep": false,
+      "reason": "doubles",
+      "date": "2024-10-11"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-oJM3je",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-10-08"
+    },
+    {
+      "slug": "breckinridge-dgc-dubs-rBbk7D",
+      "title": "Dubs",
+      "keep": false,
+      "reason": "doubles",
+      "date": "2024-10-04"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-naCNoF",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-10-01"
+    },
+    {
+      "slug": "breckinridge-dgc-dubs-mAODv6",
+      "title": "Dubs",
+      "keep": false,
+      "reason": "canceled+doubles",
+      "date": "2024-09-27"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-d5TEei",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-09-24"
+    },
+    {
+      "slug": "breckinridge-dgc-z0dbII",
+      "title": "(untitled, Fri 5:45-9:45am - likely a dubs event by time pattern)",
+      "keep": false,
+      "reason": "doubles (tentative, verify)",
+      "date": "2024-09-20"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-WHDX73",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-09-17"
+    },
+    {
+      "slug": "breckinridge-dgc-draw-dubs-all-welcome-j1rb7g",
+      "title": "Draw Dubs - All Welcome!!!",
+      "keep": false,
+      "reason": "canceled+doubles",
+      "date": "2024-09-13"
+    },
+    {
+      "slug": "breckinridge-dgc-draw-dubs-all-welcome-BIZybl",
+      "title": "Draw Dubs - All Welcome!!!",
+      "keep": false,
+      "reason": "doubles",
+      "date": "2024-09-13"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-zntSSX",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-09-10"
+    },
+    {
+      "slug": "breckinridge-dgc-draw-doubles-all-welcome-O8R3eA",
+      "title": "Draw Doubles - All Welcome!!!",
+      "keep": false,
+      "reason": "doubles",
+      "date": "2024-09-06"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-PezzA5",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-09-03"
+    },
+    {
+      "slug": "breckinridge-dgc-byop-dubs-all-welcome-gQurud",
+      "title": "BYOP Dubs- All Welcome!!!",
+      "keep": false,
+      "reason": "doubles",
+      "date": "2024-08-30"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-RvmLy3",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-08-27"
+    },
+    {
+      "slug": "breckinridge-dgc-draw-doubles-mini-all-welcome-mKddbx",
+      "title": "Draw Doubles Mini - All Welcome!!!",
+      "keep": false,
+      "reason": "doubles",
+      "date": "2024-08-23"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-OLCzCK",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-08-20"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-DnH4zm",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-08-13"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-WjVj4Y",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-08-06"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-oq3rJr",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-07-30"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-Sqd3yf",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-07-23"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-JJ6jMS",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-07-16"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-1TaVFD",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-07-09"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-wks5CY",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-07-02"
+    },
+    {
+      "slug": "breckinridge-dgc-shawnee-weekly-mini-7ycBfB",
+      "title": "*SHAWNEE* Weekly Mini",
+      "keep": false,
+      "reason": "location",
+      "date": "2024-06-25"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-F5ZP7l",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-06-18"
+    },
+    {
+      "slug": "breckinridge-dgc-draw-dubs-all-welcome-5UhRZv",
+      "title": "Draw Dubs - All Welcome",
+      "keep": false,
+      "reason": "doubles",
+      "date": "2024-06-04"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-ZmNo",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-05-21"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-DsNr",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-05-14"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-8NG3",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-05-07"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-IZVl",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-04-30"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-C5oZ",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-04-23"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-iTlP",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-04-16"
+    },
+    {
+      "slug": "breckinridge-dgc-avoid-the-rain-doubles-DVwQ",
+      "title": "Avoid The Rain Doubles",
+      "keep": false,
+      "reason": "doubles",
+      "date": "2024-04-09"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-OeTF",
+      "title": "Weekly Mini - All Welcome!!! (Tue-Wed)",
+      "keep": true,
+      "date": "2024-04-02"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-mlZO",
+      "title": "Weekly Mini - All Welcome!!! (Tue-Wed)",
+      "keep": true,
+      "date": "2024-03-26"
+    },
+    {
+      "slug": "breckinridge-dgc-weekly-mini-all-welcome-Ah2j",
+      "title": "Weekly Mini - All Welcome!!!",
+      "keep": true,
+      "date": "2024-03-19"
+    },
+    {
+      "slug": "breckinridge-dgc-opening-event-all-welcome-fPcD",
+      "title": "Opening Event! - All Welcome",
+      "keep": true,
+      "date": "2024-03-12"
+    }
+  ]
+}
