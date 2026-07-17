@@ -1,0 +1,103 @@
+
+</head>
+<body>
+<!--__GLOBAL_HEADER__-->
+<div class="stats-subheader">
+  <div class="stats-subheader-inner">
+    <nav class="tabs">
+      <div class="tab active" data-tab="winners">Top Winners</div>
+      <div class="tab" data-tab="player">Player Lookup</div>
+      <div class="tab" data-tab="holes">Hole Stats</div>
+      <div class="tab" data-tab="playertable">Player Table</div>
+      <div class="tab" data-tab="h2h">Head-to-Head</div>
+      <div class="tab" data-tab="courserecords">Course Records</div>
+      <div class="tab" data-tab="events">Past Results</div>
+      <!--__CHAT_NAV__--></nav>
+  </div>
+</div>
+<div class="wrap">
+  <div class="subtitle">101 events · 2024-03-12 to present · 3,415 logged rounds · 512 players</div>
+
+  <div class="row filter-bar" style="align-items:flex-start;">
+    <div>
+      <div class="filter-label">Years</div>
+      <div id="globalYearToggle" class="toggle-group"></div>
+    </div>
+    <div>
+      <div class="filter-label">Season filter</div>
+      <select id="globalSeasonFilter">
+        <option value="">All Rounds</option>
+        <option value="In Season" selected>In Season</option>
+        <option value="Off Season">Off Season</option>
+      </select>
+    </div>
+    <div>
+      <div class="filter-label">Divisions <a href="#" id="divToggleAll" class="muted" style="font-size:11px; font-weight:400;">(all)</a> · <a href="#" id="divToggleNone" class="muted" style="font-size:11px; font-weight:400;">(none)</a></div>
+      <div id="globalDivToggle" class="toggle-group"></div>
+    </div>
+  </div>
+  <div class="muted" style="margin-bottom:16px; font-size:12px;">These filters apply across every tab__CHAT_FILTER_NOTE__.</div>
+
+  <div class="panel" id="panel-player">
+    <div class="row">
+      <div class="autocomplete-box">
+        <input type="text" id="playerSearch" placeholder="Search a player name…" style="width:260px">
+        <div class="suggestions" id="playerSuggest"></div>
+      </div>
+    </div>
+    <div id="playerResult"></div>
+  </div>
+
+  <div class="panel" id="panel-events">
+    <div class="row">
+      <input type="text" id="eventSearch" placeholder="Filter by date (YYYY-MM) or title…" style="width:260px">
+    </div>
+    <div id="eventList"></div>
+  </div>
+
+  <div class="panel" id="panel-h2h">
+    <div class="row">
+      <div class="autocomplete-box">
+        <input type="text" id="h2hA" placeholder="Player A…" style="width:200px">
+        <div class="suggestions" id="h2hASuggest"></div>
+      </div>
+      <span class="muted">vs</span>
+      <div class="autocomplete-box">
+        <input type="text" id="h2hB" placeholder="Player B…" style="width:200px">
+        <div class="suggestions" id="h2hBSuggest"></div>
+      </div>
+      <button id="h2hGo">Compare</button>
+    </div>
+    <div id="h2hResult"></div>
+  </div>
+
+  <div class="panel" id="panel-holes">
+    <div class="muted" style="margin-bottom:10px;">Use the Divisions toggle above to include/exclude divisions from these hole stats.</div>
+    <div id="holeStats"></div>
+  </div>
+
+  <!--__CHAT_PANEL__-->
+
+  <div class="panel active" id="panel-winners">
+    <div id="winnersOut"></div>
+  </div>
+
+  <div class="panel" id="panel-playertable">
+    <div class="row">
+      <input type="text" id="ptSearch" placeholder="Search player name…" style="width:200px;">
+      <label class="muted" for="ptMinRounds">Min rounds played:</label>
+      <input type="number" id="ptMinRounds" min="0" step="1" value="1" style="width:70px;">
+      <span class="muted" id="ptScopeLabel"></span>
+    </div>
+    <div class="muted" style="margin-bottom:10px;">Use the Divisions toggle above to include/exclude divisions from this table. Scroll right for hole-by-hole averages, bests, and worsts. Click a column header to sort — click again to reverse. "Best" hole score = lowest; "worst" = highest. Placement counts ties (e.g. T3 = 3).</div>
+    <div id="playerTableWrap"></div>
+  </div>
+
+  <div class="panel" id="panel-courserecords">
+    <div class="card">
+      <div class="placeholder-note">Course records (best score per hole, best round, hot streaks) coming soon.</div>
+    </div>
+  </div>
+</div>
+<!--__GLOBAL_FOOTER__-->
+

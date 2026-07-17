@@ -1,0 +1,13 @@
+{
+  "name": "breckinridge-disc-golf-club",
+  "private": true,
+  "scripts": {
+    "build": "npm run build:stats && npm run build:site",
+    "build:stats": "node scripts/build.js",
+    "build:site": "node scripts/build-site.js",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
+  }
+}

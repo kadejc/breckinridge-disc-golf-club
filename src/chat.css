@@ -1,0 +1,7 @@
+.chat-messages { max-height: 440px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 4px 2px; }
+.chat-empty { color: var(--muted); font-size: 13px; padding: 8px 2px; }
+.chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+.chat-bubble.user { align-self: flex-end; background: var(--accent-tint); color: var(--ink); }
+.chat-bubble.assistant { align-self: flex-start; background: var(--bg); color: var(--ink); }
+.chat-bubble.assistant.loading { font-style: italic; color: var(--muted); }
+.chat-bubble.assistant.error { background: #fdecea; color: #a33; }

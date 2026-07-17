@@ -1,0 +1,108 @@
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="brand-title" href="{{ROOT}}index.html">Breckinridge DGC<span class="brand-sub">Disc Golf Club</span></a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    <nav class="main-nav" id="mainNav">
+      <div class="nav-item">
+        <button class="nav-link">About</button>
+        <div class="nav-dropdown">
+          <a href="{{ROOT}}about/who-we-are.html">Who we are</a>
+          <a href="{{ROOT}}about/admins.html">Admins</a>
+          <a href="{{ROOT}}about/course-info.html">Course Info</a>
+          <a href="{{ROOT}}about/sponsors.html">Sponsors</a>
+          <a href="{{ROOT}}about/faq.html">FAQ</a>
+          <a href="{{ROOT}}about/bylaws.html">Club Bylaws</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Resources</button>
+        <div class="nav-dropdown">
+          <a class="external" href="https://www.cor.net/departments/parks-recreation/athletics/breckinridge-park-disc-golf" target="_blank" rel="noopener">Book the course</a>
+          <a href="{{ROOT}}resources/payout-tables.html">Our payout tables</a>
+          <a href="{{ROOT}}resources/course-map.html">Course Map/Scorecard</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Stats</button>
+        <div class="nav-dropdown">
+          <a href="{{ROOT}}stats.html#winners">Top Winners</a>
+          <a href="{{ROOT}}stats.html#player">Player Lookup</a>
+          <a href="{{ROOT}}stats.html#holes">Hole Stats</a>
+          <a href="{{ROOT}}stats.html#playertable">Player Table</a>
+          <a href="{{ROOT}}stats.html#h2h">Head-to-Head</a>
+          <a href="{{ROOT}}stats.html#courserecords">Course Records</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Gallery</button>
+        <div class="nav-dropdown">
+          <a href="{{ROOT}}gallery/ace-gallery.html">Ace Gallery</a>
+          <a href="{{ROOT}}gallery/photos.html">Gallery</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Contact</button>
+        <div class="nav-dropdown">
+          <a href="{{ROOT}}contact/join-us.html">Join us</a>
+          <a class="external" href="https://m.me/kadecappscoaching" target="_blank" rel="noopener">Apply to help</a>
+          <a class="external" href="https://www.facebook.com/groups/1035235994452368" target="_blank" rel="noopener">Social Media</a>
+          <a href="{{ROOT}}contact/newsletter.html">Newsletter Signup</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Events</button>
+        <div class="nav-dropdown">
+          <a class="external" href="https://udisc.com/leagues/breckinridge-dgc-kwxbSd/manage/events/all?status=upcoming" target="_blank" rel="noopener">Tournament Schedule</a>
+          <a href="{{ROOT}}events/calendar.html">Calendar</a>
+          <a href="{{ROOT}}stats.html#events">Past Results</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Membership</button>
+        <div class="nav-dropdown">
+          <a href="{{ROOT}}membership/tiers-dues.html">Membership Tiers/Dues</a>
+          <a href="{{ROOT}}membership/renew.html">Renew</a>
+          <a href="{{ROOT}}membership/perks.html">Member Perks</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Rules &amp; Etiquette</button>
+        <div class="nav-dropdown">
+          <a class="external" href="https://udisc.com/courses/breckinridge-park-dgc-R3n7/layouts/110608/caddie-book" target="_blank" rel="noopener">Local Rules</a>
+          <a href="{{ROOT}}rules-etiquette/course-etiquette.html">Course Etiquette</a>
+          <a class="external" href="https://www.pdga.com/rules/official-rules-disc-golf" target="_blank" rel="noopener">PDGA Rules</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">News</button>
+        <div class="nav-dropdown">
+          <a href="{{ROOT}}news/announcements.html">Announcements</a>
+          <a href="{{ROOT}}news/tournament-recaps.html">Tournament Recaps</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var nav = document.getElementById('mainNav');
+  toggle.addEventListener('click', function(){
+    var open = nav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  var items = nav.querySelectorAll('.nav-item');
+  items.forEach(function(item){
+    var link = item.querySelector('.nav-link');
+    link.addEventListener('click', function(e){
+      e.stopPropagation();
+      var wasOpen = item.classList.contains('open');
+      items.forEach(function(i){ i.classList.remove('open'); });
+      if(!wasOpen) item.classList.add('open');
+    });
+  });
+  document.addEventListener('click', function(){
+    items.forEach(function(i){ i.classList.remove('open'); });
+  });
+})();
+</script>

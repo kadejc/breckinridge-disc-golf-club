@@ -30,6 +30,222 @@ body {
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---------- Header / global dropdown nav ---------- */
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 2px rgba(16,20,24,0.04);
+}
+.site-header-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.brand-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.brand-title:hover { text-decoration: none; }
+.brand-sub {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.main-nav { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; position: relative; }
+.nav-item { position: relative; }
+.nav-link {
+  display: block;
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: color .15s ease, background .15s ease;
+}
+.nav-link:hover, .nav-link:focus-visible { color: var(--accent); background: var(--accent-tint); text-decoration: none; }
+.nav-item.open > .nav-link { color: var(--accent); background: var(--accent-tint); }
+
+.nav-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 210px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  padding: 6px;
+  margin-top: 4px;
+  z-index: 110;
+}
+.nav-item.open .nav-dropdown { display: block; }
+.nav-dropdown a {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.nav-dropdown a:hover { background: var(--accent-tint); color: var(--accent); text-decoration: none; }
+.nav-dropdown a.external::after { content: " \2197"; color: var(--muted); }
+
+.nav-toggle {
+  display: none;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .nav-toggle { display: block; }
+  .main-nav { display: none; width: 100%; flex-direction: column; align-items: stretch; gap: 0; }
+  .main-nav.open { display: flex; }
+  .nav-item { width: 100%; }
+  .nav-link { width: 100%; text-align: left; padding: 12px 8px; }
+  .nav-dropdown { position: static; box-shadow: none; border: none; margin: 0 0 4px 14px; padding: 0; }
+  .nav-item.open .nav-dropdown { border-left: 2px solid var(--border-soft); padding-left: 8px; }
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 48px;
+  padding: 28px 20px 40px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.site-footer-inner { max-width: 1180px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.site-footer a { color: var(--ink-soft); }
+
+/* ---------- Generic page layout ---------- */
+.wrap { max-width: 1180px; margin: 0 auto; padding: 20px 20px 60px; }
+.hero {
+  padding: 48px 20px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--accent-tint), var(--bg));
+  border-bottom: 1px solid var(--border);
+}
+.hero h1 { font-size: 32px; margin: 0 0 10px; }
+.hero p { color: var(--ink-soft); font-size: 16px; max-width: 620px; margin: 0 auto; }
+
+.page-section { padding: 36px 0; border-bottom: 1px solid var(--border-soft); }
+.page-section:last-child { border-bottom: none; }
+.page-section h2 { font-size: 20px; margin: 0 0 12px; }
+.page-section p { color: var(--ink-soft); line-height: 1.6; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.placeholder-note {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-size: 12.5px;
+  font-style: italic;
+}
+
+button, .btn {
+  display: inline-block;
+  padding: 9px 16px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+button:hover, .btn:hover { background: var(--accent-dark); text-decoration: none; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 720px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 24px; }
+}
+
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.photo-grid img { width: 100%; height: 160px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.data-table th, .data-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border-soft); }
+.data-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; }
+
+.video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+.video-embed { position: relative; width: 100%; padding-top: 56.25%; background: var(--bg); border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); }
+.video-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-label { font-size: 12.5px; font-weight: 700; color: var(--ink-soft); margin: 8px 0 2px; }
+.data-table tfoot td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: none; }
+
+
+:root {
+  color-scheme: light;
+  --accent: #c0392b;
+  --accent-dark: #9c2e22;
+  --accent-tint: #fdf1ef;
+  --ink: #1a1d23;
+  --ink-soft: #4b5158;
+  --muted: #767c86;
+  --border: #e3e5e9;
+  --border-soft: #edeef1;
+  --surface: #ffffff;
+  --bg: #f4f5f7;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow-sm: 0 1px 2px rgba(16,20,24,0.05);
+  --shadow-md: 0 4px 16px rgba(16,20,24,0.06), 0 1px 3px rgba(16,20,24,0.06);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
 
 /* ---------- Header / top nav (Ridgeview-style: brand left, uppercase tabs right, sticky) ---------- */
 .site-header {
@@ -67,6 +283,15 @@ body {
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--accent);
+}
+.stats-subheader {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.stats-subheader-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 10px 20px;
 }
 .tabs {
   display: flex;
@@ -279,18 +504,127 @@ canvas { max-width: 100%; }
 <body>
 <header class="site-header">
   <div class="site-header-inner">
-    <h1 class="brand-title">Breckinridge DGC<span class="brand-sub">Weekly Mini Stats</span></h1>
+    <a class="brand-title" href="index.html">Breckinridge DGC<span class="brand-sub">Disc Golf Club</span></a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    <nav class="main-nav" id="mainNav">
+      <div class="nav-item">
+        <button class="nav-link">About</button>
+        <div class="nav-dropdown">
+          <a href="about/who-we-are.html">Who we are</a>
+          <a href="about/admins.html">Admins</a>
+          <a href="about/course-info.html">Course Info</a>
+          <a href="about/sponsors.html">Sponsors</a>
+          <a href="about/faq.html">FAQ</a>
+          <a href="about/bylaws.html">Club Bylaws</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Resources</button>
+        <div class="nav-dropdown">
+          <a class="external" href="https://www.cor.net/departments/parks-recreation/athletics/breckinridge-park-disc-golf" target="_blank" rel="noopener">Book the course</a>
+          <a href="resources/payout-tables.html">Our payout tables</a>
+          <a href="resources/course-map.html">Course Map/Scorecard</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Stats</button>
+        <div class="nav-dropdown">
+          <a href="stats.html#winners">Top Winners</a>
+          <a href="stats.html#player">Player Lookup</a>
+          <a href="stats.html#holes">Hole Stats</a>
+          <a href="stats.html#playertable">Player Table</a>
+          <a href="stats.html#h2h">Head-to-Head</a>
+          <a href="stats.html#courserecords">Course Records</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Gallery</button>
+        <div class="nav-dropdown">
+          <a href="gallery/ace-gallery.html">Ace Gallery</a>
+          <a href="gallery/photos.html">Gallery</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Contact</button>
+        <div class="nav-dropdown">
+          <a href="contact/join-us.html">Join us</a>
+          <a class="external" href="https://m.me/kadecappscoaching" target="_blank" rel="noopener">Apply to help</a>
+          <a class="external" href="https://www.facebook.com/groups/1035235994452368" target="_blank" rel="noopener">Social Media</a>
+          <a href="contact/newsletter.html">Newsletter Signup</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Events</button>
+        <div class="nav-dropdown">
+          <a class="external" href="https://udisc.com/leagues/breckinridge-dgc-kwxbSd/manage/events/all?status=upcoming" target="_blank" rel="noopener">Tournament Schedule</a>
+          <a href="events/calendar.html">Calendar</a>
+          <a href="stats.html#events">Past Results</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Membership</button>
+        <div class="nav-dropdown">
+          <a href="membership/tiers-dues.html">Membership Tiers/Dues</a>
+          <a href="membership/renew.html">Renew</a>
+          <a href="membership/perks.html">Member Perks</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">Rules &amp; Etiquette</button>
+        <div class="nav-dropdown">
+          <a class="external" href="https://udisc.com/courses/breckinridge-park-dgc-R3n7/layouts/110608/caddie-book" target="_blank" rel="noopener">Local Rules</a>
+          <a href="rules-etiquette/course-etiquette.html">Course Etiquette</a>
+          <a class="external" href="https://www.pdga.com/rules/official-rules-disc-golf" target="_blank" rel="noopener">PDGA Rules</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">News</button>
+        <div class="nav-dropdown">
+          <a href="news/announcements.html">Announcements</a>
+          <a href="news/tournament-recaps.html">Tournament Recaps</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var nav = document.getElementById('mainNav');
+  toggle.addEventListener('click', function(){
+    var open = nav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  var items = nav.querySelectorAll('.nav-item');
+  items.forEach(function(item){
+    var link = item.querySelector('.nav-link');
+    link.addEventListener('click', function(e){
+      e.stopPropagation();
+      var wasOpen = item.classList.contains('open');
+      items.forEach(function(i){ i.classList.remove('open'); });
+      if(!wasOpen) item.classList.add('open');
+    });
+  });
+  document.addEventListener('click', function(){
+    items.forEach(function(i){ i.classList.remove('open'); });
+  });
+})();
+</script>
+
+<div class="stats-subheader">
+  <div class="stats-subheader-inner">
     <nav class="tabs">
       <div class="tab active" data-tab="winners">Top Winners</div>
       <div class="tab" data-tab="player">Player Lookup</div>
       <div class="tab" data-tab="holes">Hole Stats</div>
       <div class="tab" data-tab="playertable">Player Table</div>
       <div class="tab" data-tab="h2h">Head-to-Head</div>
-      <div class="tab" data-tab="events">Events</div>
+      <div class="tab" data-tab="courserecords">Course Records</div>
+      <div class="tab" data-tab="events">Past Results</div>
       <div class="tab" data-tab="chat">Ask the Data</div>
     </nav>
   </div>
-</header>
+</div>
 <div class="wrap">
   <div class="subtitle">101 events · 2024-03-12 to present · 3,415 logged rounds · 512 players</div>
 
@@ -377,7 +711,20 @@ canvas { max-width: 100%; }
     <div class="muted" style="margin-bottom:10px;">Use the Divisions toggle above to include/exclude divisions from this table. Scroll right for hole-by-hole averages, bests, and worsts. Click a column header to sort — click again to reverse. "Best" hole score = lowest; "worst" = highest. Placement counts ties (e.g. T3 = 3).</div>
     <div id="playerTableWrap"></div>
   </div>
+
+  <div class="panel" id="panel-courserecords">
+    <div class="card">
+      <div class="placeholder-note">Course records (best score per hole, best round, hot streaks) coming soon.</div>
+    </div>
+  </div>
 </div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span>Breckinridge DGC &middot; Breckinridge Park Disc Golf Course</span>
+    <span><a href="https://www.facebook.com/groups/1035235994452368" target="_blank" rel="noopener">Facebook Group</a> &middot; <a href="stats.html">League Stats</a></span>
+  </div>
+</footer>
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <script>
@@ -523,14 +870,25 @@ function buildToggleGroup(containerId, items, selectedSet, onChange){
 })();
 
 // ---------- tabs ----------
+function activateTab(tabName){
+  const t = document.querySelector('.tab[data-tab="'+tabName+'"]');
+  if(!t) return false;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('panel-'+tabName).classList.add('active');
+  return true;
+}
 document.querySelectorAll('.tab').forEach(t=>{
   t.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+    activateTab(t.dataset.tab);
+    history.replaceState(null, '', '#'+t.dataset.tab);
   });
 });
+// Deep-link support: /stats.html#playertable activates that tab on load, and clicking a
+// Stats/Past Results nav link while already on this page (same-document hash change) too.
+if(location.hash){ activateTab(location.hash.slice(1)); }
+window.addEventListener('hashchange', ()=>{ activateTab(location.hash.slice(1)); });
 
 // ---------- autocomplete ----------
 function wireAutocomplete(inputId, suggestId, onPick){
