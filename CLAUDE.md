@@ -30,7 +30,8 @@ per top-level section — the user explicitly asked for each dropdown option to 
   and `membership/`/`site/membership/` deleted). Rules & Etiquette also lost its Course
   Etiquette sub-item the same day (removed by request) — that dropdown now only has the two
   external links (Local Rules, PDGA Rules), so `rules-etiquette/` has no internal page of its
-  own either.
+  own either. `resources/strike-tracker.html` was added the same day (Resources dropdown, 4th
+  item) — structure only, no strike rules or data supplied yet.
 - `shared/site.css` — single source of truth for CSS: color variables, base styles, the
   dropdown nav, footer, and generic page components (`.hero`, `.page-section`, `.card`,
   `.placeholder-note`, `.data-table`, `.photo-grid`, etc). Marketing pages link it externally;
@@ -58,17 +59,118 @@ per top-level section — the user explicitly asked for each dropdown option to 
   for everything).** Never hand-edit the generated root/subdirectory HTML pages.
 
 **Placeholder content still outstanding** (as of 2026-07-17): FAQ, Club Bylaws, Newsletter
-Signup, Calendar, Announcements, Tournament Recaps, and the bio text for each Admin (headshots
-are placeholders too — real photos need to be supplied) and the description/logo for each
-Sponsor. Search for `placeholder-note` across `site/**/*.html` and `src/body.html` to find them
+Signup, Calendar, Announcements, Tournament Recaps, Strike Tracker (no rules or data supplied),
+the bio text for each Admin (headshots are placeholders too — real photos need to be supplied),
+the description/logo for each Sponsor, and the "Playing with" field + photo for each Ace Gallery
+entry. Search for `placeholder-note` across `site/**/*.html` and `src/body.html` to find them
 all; that search should return exactly these.
 
 **No longer placeholders** (real content added 2026-07-17): Admins (Kade Capps, Sean Temple, Ace
 Wall — headshot + bio *slots* exist, but only names are real, bios/photos still pending),
 Sponsors (Replay Sports Gear, Hooligan Discs — same: slots exist, logos/descriptions pending;
 "Become a Sponsor" copy about donating a weekly closest-to-the-pin prize is real), Our Payout
-Tables (pulled from `Breck_Payout_Calculator_Advanced.xlsx`, see below), and the Course Records
-stats tab (real computation, see "Stats dashboard" below).
+Tables (pulled from `Breck_Payout_Calculator_Advanced.xlsx`, see below, now also has an
+interactive calculator), the Course Records stats tab (real computation, see "Stats dashboard"
+below), and Ace Gallery (all 17 known aces populated with hole/name/date/amount — only the
+per-ace photo and "playing with" field are still placeholders).
+
+## Player name shortening (privacy)
+
+Every player name shown anywhere on the stats dashboard (Top Winners, Player Lookup incl.
+autocomplete, Hole Stats, Player Table, Head-to-Head, Past Results, Course Records) and on the
+Ace Gallery is displayed as **"First L."** — first name plus last initial — never a full last
+name. This was an explicit user request (2026-07-17), for player privacy.
+
+- **Stats dashboard**: `computeDisplayNames()` in `src/app.js` builds a `DISPLAY_NAME_MAP`
+  (full name → short form) once from `PLAYER_NAMES` at load. `dn(fullName)` looks it up. Full
+  names stay the canonical key for every filter/lookup/sort — only rendered *text* goes through
+  `dn()`. If you add a new place that prints a player's name, wrap it in `dn(...)` or it'll leak
+  the full name; grep `dn(` in `src/app.js` for every existing call site as a checklist.
+- **Collision handling**: if two different players would both shorten to the same "First L."
+  (e.g. two "Kevin B."s), both get progressively more letters of their last name (2, 3, ...)
+  until they're distinguishable, via `parsePlayerName()` + the `len` loop in
+  `computeDisplayNames()`. Verified against the real ~508-player roster (2026-07-17) — resolves
+  every case except one: `"John Stammreich"` and `'John "Stamm I Am" Stammreich"'` share an
+  identical last name and can never be disambiguated by this scheme. That pair is almost
+  certainly the same real person recorded twice under slightly different scraped name strings —
+  it's a data-quality issue (like the documented `career_rounds` bug and the identity merges
+  below), not a bug in the shortening logic. Worth merging in `artifact_data.json` at some point,
+  the same way `"Spaceballz"`→`"Ace Wall"` was merged.
+- **Ace Gallery** (`site/gallery/ace-gallery.html`) is a static page, not driven by
+  `src/app.js`, so its names were shortened by hand to match the same "First L." convention —
+  they're not run through `dn()` since there's no shared JS between the two. If you add a new
+  ace, shorten the name the same way by hand (and watch for first-name collisions among the ace
+  list specifically, not just the full roster).
+- **Autocomplete** (Player Lookup, Head-to-Head inputs): suggestions display the short name, but
+  matching is lenient — typing either the full name or the short form's text will find a player
+  (`wireAutocomplete()` in `src/app.js` checks both). Picking a suggestion sets the visible input
+  text to the short name but still passes the *full* name to the lookup callback.
+- **Admins are exempt** — `about/admins.html` shows full names (Kade Capps, Sean Temple, Ace
+  Wall) since they're intentionally public figures with their own bio section, not anonymized
+  attendees. If the "shorten everyone" rule was meant to include Admins too, that's a scope call
+  the user should confirm — it wasn't asked about explicitly.
+
+## Total money paid out counter
+
+`renderMoneyPaidOut()` in `src/app.js` renders a banner (`#moneyPaidOutBanner` in
+`src/body.html`) near the top of `stats.html`, above the tab strip, visible regardless of which
+tab is active. **Not** filtered by the year/season/division toggles — it's always the
+all-time grand total. Two parts, added together:
+
+1. **Event payouts, excluding 2024** — summed live from `ROUNDS[].pay` via the existing
+   `parsePay()`. 2024 is excluded because the user said that year's payout data isn't reliably
+   tracked (disclaimer text says so on the banner); they may estimate/backfill it later.
+2. **Ace payouts, all years** — a hardcoded constant, `ACE_TOTAL_PAID = 6621` (17 aces,
+   `ACE_COUNT = 17`), *not* computed from any data file, since aces aren't in `ROUNDS` at all
+   (they're a separate pot, unrelated to event placement). **This must be updated by hand in
+   `src/app.js` every time a new ace is added to `site/gallery/ace-gallery.html`** — the two
+   have no shared source of truth. Search `ACE_TOTAL_PAID` and `ACE_COUNT` when updating.
+
+## Payout Calculator + Tuesday live-count automation
+
+`resources/payout-tables.html` has two parts now: an interactive calculator (added first) and
+the original static reference tables (unchanged, still pulled from
+`Breck_Payout_Calculator_Advanced.xlsx`'s `MPO_Pay`/`MP40_Pay`/`MA1_Pay`/`MA3-FA3_Pay`/`Side_Pay`
+sheets).
+
+- **Calculator**: `PAYOUT_CALC_DATA` (embedded JSON, same 5 sheets, keyed `mpo`/`mp40`/`ma1`/
+  `ma3fa3`/`side`) plus a division `<select>` + player-count `<select>` that look up and render
+  the payout-by-position table for that exact combo. Regenerate `PAYOUT_CALC_DATA` the same way
+  as the static tables (openpyxl over the 5 `*_Pay` sheets) if the spreadsheet changes.
+  **Gotcha that already bit this once**: don't build this page's JS via a Python f-string/
+  heredoc without checking the output — an escaped apostrophe in copy text (`tonight's`)
+  produced *unescaped* JS and silently broke the whole script (page loaded fine, dropdowns just
+  did nothing, no console error visible without checking `new Function(scriptText)` directly).
+  Always validate generated `<script>` blocks parse (`node -e "new Function(...)"` or just load
+  the page and check the dropdowns actually populate) before trusting a codegen pass.
+- **Tuesday live-count auto-populate**: the user asked for the calculator to auto-fill from
+  that week's actual turnout. Pipeline:
+  - `scripts/scrape-live-count.js` (`npm run scrape:live-count`) — finds the Weekly Mini event
+    whose date matches *today* (`America/Chicago`) on the public league schedule, counts players
+    per division on its `?view=cards` leaderboard (no login needed, same as
+    `scripts/scrape-udisc.js`), maps UDisc division codes to the calculator's slugs
+    (`MPO`→`mpo`, `MP40`→`mp40`, `MA1`→`ma1`, `MA3`/`FA3`→`ma3fa3` combined; `Free` and `Side`
+    are intentionally not mapped — Side has no UDisc division label and Free isn't in the
+    payout tables), and writes `data/live-event-count.json`.
+  - `.github/workflows/tuesday-live-count.yml` — **a real scheduled GitHub Action**, runs every
+    Tuesday at 23:30 UTC (6:30 PM Central during CDT; drifts to 5:30 PM during CST since cron
+    doesn't handle DST — accepted, not a bug), and **auto-commits + pushes**
+    `data/live-event-count.json` to `main` if it changed. This is standing automation with
+    unattended write access to the repo — the user asked for this exact behavior explicitly
+    (2026-07-17), but be aware of it before adding more scheduled workflows. Also has
+    `workflow_dispatch` for manual test runs from the Actions tab.
+  - The calculator page `fetch()`es `../data/live-event-count.json` on load; if it has data for
+    the currently-selected division, it auto-fills the player-count dropdown and shows a note
+    (`#calcAutoNote`). Switching divisions re-checks and re-fills if that division has live data
+    too. Manually changing the player-count dropdown is treated as a deliberate override and
+    hides the note. A placeholder `data/live-event-count.json` (all-null/empty) ships so the
+    fetch always succeeds even before the Action has ever run.
+  - **Known limitation**: if the check runs before anyone's started entering scores for the
+    night (e.g. right at 6:00 PM), the Cards view has zero rows and this writes zero counts.
+    There's no reliable earlier signal for a drop-in league like this — UDisc's
+    "Participants/Registered" count (visible even pre-event, verified 2026-07-17) reflects
+    app RSVPs, not actual turnout for a league where people just show up and get added to
+    cards, so it wasn't used.
 
 ## Stats dashboard build system (added in Claude Code, post-handoff)
 

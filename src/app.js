@@ -52,6 +52,54 @@ for(const ev of EVENTS){
 // unique player names (case-sensitive as scraped)
 const PLAYER_NAMES = Array.from(new Set(ROUNDS.map(r=>r.name))).sort((a,b)=>a.localeCompare(b));
 
+// ---------- display-name shortening (privacy: "First L." everywhere a name is shown) ----------
+// Full names (from ROUNDS/PLAYER_NAMES) stay the canonical key for all filtering/lookups; only
+// rendered text goes through dn(). Two people with the same first name whose "First L." would
+// collide get progressively more letters of the last name (2, 3, ...) until unique -- see
+// CLAUDE.md for the exact rule and why.
+function parsePlayerName(full){
+  const parts = full.trim().split(/\s+/);
+  if(parts.length === 1) return {first: parts[0], last: null};
+  return {first: parts[0], last: parts[parts.length-1]};
+}
+function computeDisplayNames(names){
+  const parsed = names.map(n => ({full: n, ...parsePlayerName(n)}));
+  const byFirst = {};
+  parsed.forEach(p => { (byFirst[p.first] = byFirst[p.first] || []).push(p); });
+
+  const map = {};
+  for(const first in byFirst){
+    const group = byFirst[first];
+    let len = 1;
+    while(true){
+      const seen = {};
+      let collision = false;
+      const labels = {};
+      for(const p of group){
+        let label;
+        if(!p.last){ label = p.first; }
+        else {
+          const prefix = p.last.slice(0, len);
+          label = p.first + ' ' + prefix + (prefix.length < p.last.length ? '.' : '');
+        }
+        labels[p.full] = label;
+        if(seen[label] && seen[label] !== p.full) collision = true;
+        seen[label] = p.full;
+      }
+      if(!collision || len >= 20){
+        Object.assign(map, labels);
+        break;
+      }
+      len++;
+    }
+  }
+  return map;
+}
+const DISPLAY_NAME_MAP = computeDisplayNames(PLAYER_NAMES);
+function dn(fullName){
+  return DISPLAY_NAME_MAP[fullName] || fullName;
+}
+
 // ---------- global season + year + division filters (apply across every tab) ----------
 const ALL_YEARS = Array.from(new Set(EVENTS.map(ev=>ev[2] && ev[2].slice(0,4)).filter(Boolean))).sort((a,b)=>b.localeCompare(a));
 function compareDivisions(a, b){
@@ -167,13 +215,13 @@ function wireAutocomplete(inputId, suggestId, onPick){
   input.addEventListener('input', ()=>{
     const q = input.value.trim().toLowerCase();
     if(q.length < 1){ box.style.display='none'; return; }
-    const matches = PLAYER_NAMES.filter(n=>n.toLowerCase().includes(q)).slice(0,8);
+    const matches = PLAYER_NAMES.filter(n=>n.toLowerCase().includes(q) || dn(n).toLowerCase().includes(q)).slice(0,8);
     if(matches.length===0){ box.style.display='none'; return; }
-    box.innerHTML = matches.map(n=>'<div data-name="'+n.replace(/"/g,'&quot;')+'">'+n+'</div>').join('');
+    box.innerHTML = matches.map(n=>'<div data-name="'+n.replace(/"/g,'&quot;')+'">'+dn(n)+'</div>').join('');
     box.style.display='block';
     box.querySelectorAll('div').forEach(d=>{
       d.addEventListener('click', ()=>{
-        input.value = d.dataset.name;
+        input.value = dn(d.dataset.name);
         box.style.display='none';
         onPick(d.dataset.name);
       });
@@ -182,7 +230,8 @@ function wireAutocomplete(inputId, suggestId, onPick){
   document.addEventListener('click', (e)=>{ if(e.target!==input) box.style.display='none'; });
   input.addEventListener('keydown', (e)=>{
     if(e.key==='Enter'){
-      const exact = PLAYER_NAMES.find(n=>n.toLowerCase()===input.value.trim().toLowerCase());
+      const typed = input.value.trim().toLowerCase();
+      const exact = PLAYER_NAMES.find(n=>n.toLowerCase()===typed || dn(n).toLowerCase()===typed);
       if(exact){ onPick(exact); box.style.display='none'; }
     }
   });
@@ -196,7 +245,7 @@ function renderPlayer(name){
   const season = getSeasonFilter();
   const rounds = ROUNDS.filter(r=>r.name===name && (!season || r.season===season) && matchesYear(r.date) && matchesDivision(r.div)).sort((a,b)=>a.date.localeCompare(b.date));
   const el = document.getElementById('playerResult');
-  if(rounds.length===0){ el.innerHTML = '<p class="muted">No rounds found for '+name+' during '+seasonLabel()+'.</p>'; return; }
+  if(rounds.length===0){ el.innerHTML = '<p class="muted">No rounds found for '+dn(name)+' during '+seasonLabel()+'.</p>'; return; }
   const toParVals = rounds.map(r=>r.toPar).filter(v=>v!==null && v!==undefined);
   const avg = toParVals.length ? (toParVals.reduce((a,b)=>a+b,0)/toParVals.length) : null;
   const best = toParVals.length ? Math.min(...toParVals) : null;
@@ -205,7 +254,7 @@ function renderPlayer(name){
   const avgRating = ratings.length ? Math.round(ratings.reduce((a,b)=>a+b,0)/ratings.length) : null;
 
   let html = '<div class="card">';
-  html += '<h3 style="margin-top:0">'+name+'</h3>';
+  html += '<h3 style="margin-top:0">'+dn(name)+'</h3>';
   html += '<div class="stat-grid">';
   html += '<div class="stat-box"><div class="label">Scope</div><div class="value" style="font-size:15px">'+seasonLabel()+'</div></div>';
   html += '<div class="stat-box"><div class="label">Rounds</div><div class="value">'+rounds.length+'</div></div>';
@@ -301,7 +350,7 @@ function renderEvents(filter){
           dh += '<table><thead><tr><th>Pos</th><th>Name</th><th>To Par</th><th>Rating</th></tr></thead><tbody>';
           const sorted = [...byDiv[div]].sort((a,b)=>(a[3]===null?999:a[3])-(b[3]===null?999:b[3]));
           for(const p of sorted){
-            dh += '<tr><td>'+(p[0]||'')+'</td><td>'+p[1]+'</td><td>'+toParPillHtml(p[3])+'</td><td>'+(p[6]||'')+'</td></tr>';
+            dh += '<tr><td>'+(p[0]||'')+'</td><td>'+dn(p[1])+'</td><td>'+toParPillHtml(p[3])+'</td><td>'+(p[6]||'')+'</td></tr>';
           }
           dh += '</tbody></table></div>';
         }
@@ -332,7 +381,8 @@ function runH2H(){
   const aBySlug = {}; aRounds.forEach(r=>aBySlug[r.slug]=r);
   const bBySlug = {}; bRounds.forEach(r=>bBySlug[r.slug]=r);
   const shared = Object.keys(aBySlug).filter(s=>bBySlug[s]).sort();
-  if(shared.length===0){ el.innerHTML = '<p class="muted">'+a+' and '+b+' have never logged the same event during '+seasonLabel()+'.</p>'; return; }
+  const da = dn(a), db = dn(b);
+  if(shared.length===0){ el.innerHTML = '<p class="muted">'+da+' and '+db+' have never logged the same event during '+seasonLabel()+'.</p>'; return; }
   let aWins=0,bWins=0,ties=0;
   let rows = '';
   for(const slug of shared){
@@ -343,16 +393,16 @@ function runH2H(){
       else if(rb.toPar < ra.toPar){ bWins++; result='b'; }
       else { ties++; }
     }
-    rows += '<tr><td>'+ra.date+'</td><td>'+ra.title+'</td><td>'+toParPillHtml(ra.toPar)+'</td><td>'+toParPillHtml(rb.toPar)+'</td><td>'+(result==='a'?a+' won':result==='b'?b+' won':'tie')+'</td></tr>';
+    rows += '<tr><td>'+ra.date+'</td><td>'+ra.title+'</td><td>'+toParPillHtml(ra.toPar)+'</td><td>'+toParPillHtml(rb.toPar)+'</td><td>'+(result==='a'?da+' won':result==='b'?db+' won':'tie')+'</td></tr>';
   }
   let html = '<div class="card"><div class="stat-grid">';
   html += '<div class="stat-box"><div class="label">Scope</div><div class="value" style="font-size:15px">'+seasonLabel()+'</div></div>';
   html += '<div class="stat-box"><div class="label">Shared events</div><div class="value">'+shared.length+'</div></div>';
-  html += '<div class="stat-box"><div class="label">'+a+' wins</div><div class="value">'+aWins+'</div></div>';
-  html += '<div class="stat-box"><div class="label">'+b+' wins</div><div class="value">'+bWins+'</div></div>';
+  html += '<div class="stat-box"><div class="label">'+da+' wins</div><div class="value">'+aWins+'</div></div>';
+  html += '<div class="stat-box"><div class="label">'+db+' wins</div><div class="value">'+bWins+'</div></div>';
   html += '<div class="stat-box"><div class="label">Ties</div><div class="value">'+ties+'</div></div>';
   html += '</div></div>';
-  html += '<div class="card"><table><thead><tr><th>Date</th><th>Event</th><th>'+a+'</th><th>'+b+'</th><th>Result</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  html += '<div class="card"><table><thead><tr><th>Date</th><th>Event</th><th>'+da+'</th><th>'+db+'</th><th>Result</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   el.innerHTML = html;
 }
 document.getElementById('h2hGo').addEventListener('click', runH2H);
@@ -468,6 +518,28 @@ function parsePay(pay){
 function isWin(pos){
   return pos === '1' || pos === 'T1';
 }
+
+// ---------- Total money paid out (event payouts, excl. 2024, + aces) ----------
+// Aces aren't in ROUNDS (they're a separate pot, not tied to event placement) -- this total
+// must be kept in sync by hand with the ace count/total in site/gallery/ace-gallery.html
+// whenever a new ace is added. See CLAUDE.md.
+const ACE_COUNT = 17;
+const ACE_TOTAL_PAID = 6621;
+function renderMoneyPaidOut(){
+  const el = document.getElementById('moneyPaidOutBanner');
+  if(!el) return;
+  let eventPayouts = 0;
+  for(const r of ROUNDS){
+    if(r.date && r.date.slice(0,4) === '2024') continue; // 2024 payout data isn't reliably tracked
+    eventPayouts += parsePay(r.pay);
+  }
+  const combined = Math.round(eventPayouts + ACE_TOTAL_PAID);
+  el.innerHTML =
+    '<div><div class="tally-label">Total Paid Out to Players</div><div class="tally-figure">$'+combined.toLocaleString()+'</div></div>'+
+    '<div class="muted" style="font-size:12px; max-width:360px;">Event payouts (excluding 2024 — not reliably tracked that year) plus all-time ace payouts ('+ACE_COUNT+' aces, $'+ACE_TOTAL_PAID.toLocaleString()+').</div>';
+}
+renderMoneyPaidOut();
+
 function renderTopWinners(){
   const season = getSeasonFilter();
   let rounds = ROUNDS;
@@ -504,7 +576,7 @@ function renderTopWinners(){
     html += '<div class="card"><h3 style="margin-top:0">'+div+'</h3><table><thead><tr><th>#</th><th>Player</th><th>Wins</th><th>Rounds</th><th>Win %</th><th>Total Winnings</th></tr></thead><tbody>';
     entries.forEach((e,i)=>{
       const winPct = e.rounds >= MIN_ROUNDS_FOR_PCT ? (e.wins / e.rounds * 100).toFixed(1) + '%' : '–';
-      html += '<tr><td>'+(i+1)+'</td><td>'+e.name+'</td><td>'+e.wins+'</td><td>'+e.rounds+'</td><td>'+winPct+'</td><td>'+(e.winnings>0 ? '$'+Math.round(e.winnings) : '–')+'</td></tr>';
+      html += '<tr><td>'+(i+1)+'</td><td>'+dn(e.name)+'</td><td>'+e.wins+'</td><td>'+e.rounds+'</td><td>'+winPct+'</td><td>'+(e.winnings>0 ? '$'+Math.round(e.winnings) : '–')+'</td></tr>';
     });
     html += '</tbody></table></div>';
   }
@@ -549,7 +621,7 @@ function renderCourseRecords(){
     if(entries.length === 0) continue;
     html += '<div class="card"><h3 style="margin-top:0">'+div+'</h3><table><thead><tr><th>#</th><th>Player</th><th>To Par</th><th>Date</th><th>Event</th></tr></thead><tbody>';
     entries.forEach((e,i)=>{
-      html += '<tr><td>'+(i+1)+'</td><td>'+e.name+'</td><td>'+toParPillHtml(e.toPar)+'</td><td>'+e.date+'</td><td>'+e.title+'</td></tr>';
+      html += '<tr><td>'+(i+1)+'</td><td>'+dn(e.name)+'</td><td>'+toParPillHtml(e.toPar)+'</td><td>'+e.date+'</td><td>'+e.title+'</td></tr>';
     });
     html += '</tbody></table></div>';
   }
@@ -630,7 +702,7 @@ function ptCompare(a, b, key, dir){
 
 function ptDisplay(row, key){
   const v = ptValue(row, key);
-  if(key === 'name') return row.name;
+  if(key === 'name') return dn(row.name);
   if(key === 'div') return v || '–';
   if(key === 'totalWinnings' || key === 'highestPayout') return (v && v > 0) ? '$'+v : '–';
   if(key === 'winPct') return (v!==null && v!==undefined) ? v+'%' : '–';
@@ -681,7 +753,7 @@ function wirePlayerTableSort(){
 function renderPlayerTableRows(){
   const wrap = document.getElementById('playerTableWrap');
   const q = (document.getElementById('ptSearch').value || '').trim().toLowerCase();
-  const rows = q ? lastPtRows.filter(r=>r.name.toLowerCase().includes(q)) : lastPtRows;
+  const rows = q ? lastPtRows.filter(r=>r.name.toLowerCase().includes(q) || dn(r.name).toLowerCase().includes(q)) : lastPtRows;
   document.getElementById('ptScopeLabel').textContent =
     'Scope: ' + seasonLabel() + ' · min ' + document.getElementById('ptMinRounds').value + ' rounds · ' + rows.length + ' players' + (q ? ' (filtered)' : '');
   wrap.innerHTML = rows.length ? buildPlayerTableHtml(rows) : '<p class="muted">No players match the current filters.</p>';

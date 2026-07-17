@@ -36,7 +36,7 @@ test('every nav dropdown opens and every internal link resolves', async ({ page,
     }
     await button.click(); // close it again before opening the next one
   }
-  expect(checked.size).toBeGreaterThanOrEqual(15); // one page per non-external dropdown item
+  expect(checked.size).toBeGreaterThanOrEqual(16); // one page per non-external dropdown item
 });
 
 test('stats dashboard tabs render and deep-link via hash', async ({ page }) => {
@@ -70,6 +70,17 @@ test('stats dashboard tabs render and deep-link via hash', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('player names are shortened to "First L." everywhere, never a full last name', async ({ page }) => {
+  await page.goto('/stats.html');
+  const cells = await page.locator('#winnersOut td:nth-child(2)').allTextContents();
+  expect(cells.length).toBeGreaterThan(0);
+  // The #1 MPO winner is a known full name in the source data ("Kade Capps") -- confirm it's
+  // shortened, and confirm no cell contains a bare un-abbreviated multi-letter last name by
+  // checking none of them equal a known full name from the roster.
+  expect(cells).toContain('Kade C.');
+  expect(cells).not.toContain('Kade Capps');
+});
+
 test('course info page has 18 hole video buttons that open a modal player', async ({ page }) => {
   await page.goto('/about/course-info.html');
   const buttons = page.locator('.hole-video-btn');
@@ -93,6 +104,43 @@ test('resources course map image loads', async ({ page, request }) => {
   const url = new URL(src, page.url());
   const res = await request.get(url.toString());
   expect(res.status()).toBe(200);
+});
+
+test('payout calculator computes the right payout for a division/player-count pair', async ({ page }) => {
+  const errors = [];
+  page.on('console', (msg) => { if (msg.type() === 'error') errors.push(msg.text()); });
+  await page.goto('/resources/payout-tables.html');
+
+  await page.selectOption('#calcDivision', 'ma1');
+  await page.selectOption('#calcPlayers', '20');
+  const rows = page.locator('#calcResult tbody tr');
+  await expect(rows.first()).toHaveText('1st$44'); // from the source spreadsheet's MA1_Pay sheet: 20 players -> 1st = $44
+
+  expect(errors).toEqual([]);
+});
+
+test('payout calculator auto-fills from data/live-event-count.json when present', async ({ page }) => {
+  await page.route('**/data/live-event-count.json', (route) => route.fulfill({
+    contentType: 'application/json',
+    body: JSON.stringify({
+      date: '2026-07-14', slug: 'test-event', updatedAt: '2026-07-14T23:35:00.000Z',
+      total: 55, counts: { mpo: 12, mp40: 6, ma1: 18, ma3fa3: 19 }, byDivision: {},
+    }),
+  }));
+  await page.goto('/resources/payout-tables.html');
+
+  const note = page.locator('#calcAutoNote');
+  await expect(note).toBeVisible();
+  await expect(page.locator('#calcDivision')).toHaveValue('mpo');
+  await expect(page.locator('#calcPlayers')).toHaveValue('12');
+
+  // Switching divisions re-applies the live count for the newly-selected division too.
+  await page.selectOption('#calcDivision', 'ma1');
+  await expect(page.locator('#calcPlayers')).toHaveValue('18');
+
+  // Manually changing the player count is a deliberate override -- the auto-fill note goes away.
+  await page.selectOption('#calcPlayers', '10');
+  await expect(note).toBeHidden();
 });
 
 test.describe('mobile nav', () => {

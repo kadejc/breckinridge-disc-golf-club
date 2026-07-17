@@ -1,0 +1,38 @@
+name: Tuesday live event count
+
+# Checks the current week's Weekly Mini event on UDisc and writes the per-division player count
+# to data/live-event-count.json, which resources/payout-tables.html's calculator reads to
+# auto-populate itself. See scripts/scrape-live-count.js for the scraping logic and its
+# limitations.
+on:
+  schedule:
+    # 23:30 UTC every Tuesday = 6:30 PM Central during CDT (roughly Mar-Nov, most of the
+    # season). Cron doesn't handle DST, so during CST (Nov-Mar) this fires at 5:30 PM Central
+    # instead -- a known, accepted drift, not a bug.
+    - cron: '30 23 * * 2'
+  workflow_dispatch: {} # allows a manual "Run workflow" test from the Actions tab
+
+jobs:
+  check-count:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+
+      - run: node scripts/scrape-live-count.js
+
+      - name: Commit and push if the count changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/live-event-count.json
+          git diff --cached --quiet || git commit -m "Update this week's live event count [skip ci]"
+          git diff --cached --quiet || git push

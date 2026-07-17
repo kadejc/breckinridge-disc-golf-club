@@ -6,7 +6,8 @@
     "build:stats": "node scripts/build.js",
     "build:site": "node scripts/build-site.js",
     "test": "playwright test",
-    "scrape": "node scripts/scrape-udisc.js"
+    "scrape": "node scripts/scrape-udisc.js",
+    "scrape:live-count": "node scripts/scrape-live-count.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1"
