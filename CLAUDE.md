@@ -129,18 +129,50 @@ Top-level shape: `{"course": [...], "events": [...]}`
         2024-03-12 to 2024-10-01 had `rating` incorrectly duplicating `total_strokes`.
         These were nulled out. If new scraped data ever shows `rating === total_strokes`
         for every player in an event, that's this same bug recurring — null it out again.
+      - **`career_rounds` data quality note (found 2026-07-17, not fixed):** 87.6% of the
+        rows with a non-null `career_rounds` have `career_rounds === total_strokes` — almost
+        certainly the original manual scraping process mistakenly duplicated the same "Round"
+        column value into both fields, rather than pulling an actual lifetime-rounds stat from
+        wherever that was supposed to come from. Harmless in practice since `career_rounds` is
+        never read anywhere in `src/app.js` (verified via `grep -n '\.career\b' src/app.js` —
+        no matches), but don't trust it as real data, and don't "fix" it by inventing a
+        replacement source without asking the user first.
 
 The HTML's JS re-derives every stat (wins, win %, averages, Mini Rating, etc.) from this raw
 array on page load / filter change. There is no server — everything is client-side.
 
-## How the site is built (no scraper script currently exists)
+## How the site is built
 
-Data was collected by manually driving a Chrome browser session against UDisc's event
-leaderboard pages (`udisc.com/events/.../manage/leaderboard`) and scraping the DOM per event.
-**There is no reusable scraper script** — this was done ad hoc, event by event, inside Cowork.
-This is the single biggest thing worth fixing in Claude Code: write a proper Playwright script
-that logs into UDisc (or hits whatever API/pages are accessible) and pulls new events
-automatically, appending them to `artifact_data.json` in the format above.
+New events used to require a manual Cowork browser session, scraping each event's leaderboard
+DOM by hand. As of 2026-07-17 there's a real scraper:
+
+- `scripts/scrape-udisc.js` (run via `npm run scrape`, or `npm run scrape -- --write` to
+  actually persist changes — plain `npm run scrape` is a dry run that only prints what it
+  would add). Fetches `udisc.com/leagues/breckinridge-dgc-kwxbSd/schedule` (**public, no login
+  needed** — verified live; despite the CLAUDE.md history below mentioning "manage/leaderboard"
+  URLs, the `?view=cards` leaderboard view and the league schedule are both publicly viewable),
+  diffs against `artifact_data.json`'s existing event slugs, and scrapes each new one's
+  `?round=1&view=cards` page into the documented format.
+- Filters out events that shouldn't be in the dataset, mirroring
+  `breckinridge_events_worklist.json`'s `exclusion_reasons`: substitute-course events (title
+  matches `shawnee|b.b. owen|moved to`), doubles/dubs format, and canceled events. Also skips
+  events with zero recorded players (upcoming/unplayed) and non-event links picked up by the
+  schedule-page selector (e.g. `/events/add`, `/events/report`).
+- **Limitations, read before trusting its output:**
+  - Only handles single-round events (`round=1`). This league has always been single-round so
+    far — a multi-round event needs round=2, round=3, ... handling added.
+  - `career_rounds` is always written as `null` for newly-scraped rows — it isn't available on
+    the Cards leaderboard view. See the data-quality note above for why that's arguably more
+    correct than what's already in the file, not less.
+  - Division merges: only applies the unambiguous ones (`MMPO`→`MPO`, `FA1`→`FA3`,
+    `free`→`Free`). Logs a warning and leaves `MA40`/`AM` as-is, since CLAUDE.md's own
+    division-merge note says the exact `MA40/AM`→`MP40/MA1` mapping needs checking against git
+    history — don't have the scraper guess at it.
+  - Player identity merges (e.g. `Spaceballz`→`Ace Wall`) are **not** applied automatically —
+    those still need a human/Claude Code pass over new names before merging duplicates.
+  - Verified 2026-07-17 by scraping a known event (`...-yslfQL`, already in the dataset) and
+    diffing the result field-by-field against the stored copy — matched exactly aside from the
+    known `career_rounds` gap above. Re-verify similarly after any UDisc DOM changes break it.
 
 ## Known quirks / deliberate design decisions (don't "fix" these by accident)
 
@@ -208,14 +240,18 @@ files by hand each time.
    impossible in the Cowork sandbox (no headless browser available, network-restricted) and is
    exactly the kind of gap that caused at least one shipped bug to go unnoticed until the user
    reported it.
-4. UDisc scraper: see `scripts/scrape-udisc.js` if it exists — check its header comment for
-   status, since it needs the user's real UDisc login to fully verify and may still be
-   unverified/best-effort.
-5. Wire up a real `git` workflow (commit + push) for deploys — see "Deployment" above; still
-   manual as of this writing.
+4. ~~Build the UDisc scraper.~~ Done — `scripts/scrape-udisc.js` (`npm run scrape`), see "How
+   the site is built" above for what it handles and its limitations. No login turned out to be
+   needed; verified against real data 2026-07-17.
+5. ~~Wire up a real `git` workflow (commit + push) for deploys.~~ Done — repo is on GitHub
+   Pages (main branch, root), first full-site push was 2026-07-17. Still no CI: `npm run build`
+   + commit + push is manual. A GitHub Action that runs the build (and ideally `npm test`) on
+   push would close that gap.
 6. Fill in the many `.placeholder-note` content sections (see "Site structure" above) as the
    user supplies content.
 7. Gallery/Ace Gallery photos: user decided (2026-07-17) **not** to import UDisc's 35 course
    photos — they're community-submitted via UDisc's "Add photos" feature with no visible
    attribution/license, so republishing them carries copyright risk. `gallery.html` stays a
    placeholder until the user supplies photos they actually have rights to.
+8. Run `npm run scrape -- --write` periodically (or wire it into a scheduled GitHub Action) to
+   pick up new Weekly Mini events automatically instead of running it by hand.
