@@ -279,6 +279,10 @@ button:hover, .btn:hover { background: var(--accent-dark); text-decoration: none
   display: flex; align-items: center; justify-content: center;
   color: var(--muted); font-size: 12px; text-align: center; padding: 8px;
 }
+.ace-photo {
+  width: 100%; aspect-ratio: 4/3; margin-bottom: 10px; border-radius: var(--radius-sm);
+  object-fit: cover; display: block;
+}
 .ace-card .ace-name { font-weight: 700; margin-bottom: 2px; }
 .ace-card .ace-meta { font-size: 12.5px; color: var(--ink-soft); }
 .ace-card .ace-amount { font-weight: 700; color: var(--accent); margin-top: 4px; }

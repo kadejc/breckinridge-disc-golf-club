@@ -328,6 +328,32 @@ output for collision-correctness (e.g. `Jonathan Johnson` → `Jonathan Jo.`, no
 get added, recompute with the same algorithm rather than guessing at the right number of
 letters; see `computeDisplayNames()` in `src/app.js` for the reference implementation.
 
+## Ace Gallery photos (2026-07-17)
+
+`images/ace gallery/` has 14 JPGs sourced from Facebook (via the CDN, so they came in with
+hashed filenames and zero usable EXIF — Facebook strips it, confirmed via Pillow). No
+metadata-based or facial-recognition matching was possible. The user resolved this by manually
+renaming each file to the ace-holder's real name (e.g. `Dillon Dyer.jpg`, `Sean Gallina.jpg`),
+which `site/gallery/ace-gallery.html` now references directly (`../images/ace%20gallery/<name>.jpg`,
+URL-encoded for the space and, where present, the `&`). 16 of the 17 aces have a photo; **Hayden
+F. (hole 6, 2024-05-07) has no photo** and still shows the `.ace-photo-placeholder` "Photo coming
+soon" box — there is no 15th file to match it to.
+
+Two of the 14 files are double-ace photos (one photo, two `<img>` references, same pattern used
+twice):
+- `Kyle M & Kevin Bates.jpg` — Kyle M. (hole 11) and Kevin B. (hole 4), both aced 2026-06-16.
+- `Samuel Park & Erik Higgins.jpg` — Samuel P. (hole 14) and Erik H. (hole 16), both aced
+  2026-03-17. The other Erik H. ace (hole 12, 2026-05-05) has its own separate `Erik Higgins.jpg`.
+
+One filename is a coincidence worth flagging so it isn't "corrected" later: **`Ace Wall.jpg` is a
+person's name** (first name "Ace", last name "Wall"), matching the ace-name `Ace W.` (hole 15,
+2026-06-09) — it is not a photo of a physical ace wall/plaque.
+
+`.ace-photo` (in `shared/site.css`) is the `<img>` counterpart to `.ace-photo-placeholder` — same
+`aspect-ratio: 4/3` box, `object-fit: cover` instead of the dashed-border empty state. If more
+aces get photos later, add the file to `images/ace gallery/`, named after the person, and swap
+that entry's placeholder `<div>` for an `<img class="ace-photo">` the same way.
+
 ## Strike Tracker data (2026-07-17)
 
 `resources/strike-tracker.html` has real 2026 strike data (user-supplied, verbatim): MA1 (Erik
