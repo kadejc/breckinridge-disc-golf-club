@@ -67,26 +67,26 @@ per top-level section — the user explicitly asked for each dropdown option to 
 - **Always edit `site/**/*.html` + `shared/*`, then run `npm run build:site` (or `npm run build`
   for everything).** Never hand-edit the generated root/subdirectory HTML pages.
 
-**Placeholder content still outstanding** (as of 2026-07-17): FAQ, Club Bylaws, Newsletter
+**Placeholder content still outstanding** (as of 2026-07-18): FAQ, Club Bylaws, Newsletter
 Signup, Announcements, the strike *rules* (what earns one, what happens after N of them — the
-Strike Tracker's actual strike data is real, see below), the bio text for each Admin (headshots
-are placeholders too — real photos need to be supplied), the description/logo for each Sponsor,
-and the photo for each Ace Gallery entry (its "Playing with" field is real now, see below).
-Search for `placeholder-note` across `site/**/*.html` and `src/body.html` to find them all; that
-search should return exactly these. **News no longer has a Tournament Recaps item** — removed by
-request 2026-07-17, News now only has Announcements.
+Strike Tracker's actual strike data is real, see below), and the bio text for each Admin
+(headshots are real now, see below — only the written bio is still pending). Search for
+`placeholder-note` across `site/**/*.html` and `src/body.html` to find them all; that search
+should return exactly these. **News no longer has a Tournament Recaps item** — removed by
+request 2026-07-17, News now only has Announcements. **Events no longer has a Calendar item** —
+removed by request 2026-07-18, see "Events Calendar — removed" below.
 
-**No longer placeholders**: Admins (Kade Capps, Sean Temple, Ace Wall — now a section on
-`about/who-we-are.html`, see the page-merge note above; headshot + bio *slots* exist, but only
-names are real, bios/photos still pending), Sponsors (Replay Sports Gear, Hooligan Discs — same:
-slots exist, logos/descriptions pending; "Become a Sponsor" copy about donating a weekly
-closest-to-the-pin prize is real), Our Payout Tables (pulled from
-`Breck_Payout_Calculator_Advanced.xlsx`, see below, now also has an interactive calculator), the
-Course Records stats tab (real computation, see "Course Records manual exclusions" below), Ace
-Gallery (all 17 known aces populated with hole/name/date/amount/playing-with — only the per-ace
-photo is still a placeholder; see "Ace Gallery playing-with data" below for how that was
-derived), Calendar (real month-grid, see "Events Calendar" below), and Strike Tracker (real 2026
-strike data, see "Strike Tracker data" below — the strike *rules* are still undocumented).
+**No longer placeholders**: Admins (Kade Capps, Sean Temple, Ace Wall — on `about/who-we-are.html`,
+see the page-merge note above; real headshots in `images/admins/`, matched by filename the same
+way as the Ace Gallery photos below — bio text still pending), Sponsors (Replay Sports Gear,
+Hooligan Discs — real logos in `images/sponsors/` and real descriptions, both user-supplied
+2026-07-18; "Become a Sponsor" copy about donating a weekly closest-to-the-pin prize is real),
+Our Payout Tables (pulled from `Breck_Payout_Calculator_Advanced.xlsx`, see below, now also has
+an interactive calculator), the Course Records stats tab (real computation, see "Course Records
+manual exclusions" below), Ace Gallery (all 17 known aces populated with
+hole/name/date/amount/playing-with *and* a real photo — see "Ace Gallery photos" below for how
+photos were matched), and Strike Tracker (real 2026 strike data, see "Strike Tracker data" below
+— the strike *rules* are still undocumented).
 
 ## Player name shortening (privacy)
 
@@ -264,48 +264,35 @@ everywhere else (Top Winners, Player Table, Past Results, etc.):
 If more exclusions come up, add to these two constants rather than filtering ad hoc inside the
 render function.
 
-## Events Calendar (2026-07-17)
+## Events Calendar — removed (2026-07-18)
 
-`events/calendar.html` — real month-grid calendar (Sun-start, 6 rows), replacing what was a
-placeholder. Prev/Next buttons cycle by month (`view.setMonth(±1)` + re-render); no server, all
-client-side.
+The month-grid calendar (`events/calendar.html` / `site/events/calendar.html`, built 2026-07-17)
+was removed by request 2026-07-18, along with its nav link (Events dropdown), its
+`.calendar-*` CSS in `shared/site.css`, and its Playwright test. The Events dropdown now has
+just Tournament Schedule (external) and Past Results. `data/upcoming-events.json` (produced by
+`scripts/scrape-udisc.js`) is **still needed** — it feeds the "Next upcoming event" widget below,
+which the calendar used to share that file with; don't remove the scraper's upcoming-events
+logic just because the calendar is gone.
 
-- **Data sources**, both fetched client-side on page load (not embedded, unlike `stats.html`):
-  - `../artifact_data.json` — every past event (`slug`/`title`/`date` pulled straight out of the
-    same array the stats dashboard uses; the rest of that ~380KB file, i.e. all the per-round
-    score data, is ignored here). Rendered as `.calendar-event-chip.past`.
-  - `../data/upcoming-events.json` — events found on UDisc's schedule with no scores yet.
-    Rendered as `.calendar-event-chip.upcoming`. Produced by `scripts/scrape-udisc.js`, which now
-    writes this file as a side effect on *every* run (dry-run included — it's a transient cache,
-    not the historical record) alongside its existing artifact_data.json-updating behavior:
-    whichever new-to-us events it finds with zero recorded players get collected into this file
-    instead of being silently skipped like before. Run `npm run scrape` (or the `--write`
-    variant) to refresh it; nothing currently does this on a schedule (unlike the Tuesday
-    live-count check) — could be added to the same GitHub Action if the user wants the calendar
-    to self-update instead of requiring a manual scrape.
-- Both fetches degrade gracefully if missing/unreachable (calendar just renders with fewer/no
-  chips; only the `artifact_data.json` failure shows a `#calStatus` note, since that one's the
-  primary data source).
-- **Timezone gotcha already fixed once**: don't compute the calendar grid's day keys or "is this
-  today" check with `date.toISOString().slice(0,10)` on a locally-constructed `Date` — that
-  converts through UTC and shifts the date by one for any visitor browsing from a timezone ahead
-  of UTC (local midnight is still "yesterday" in UTC there). Use the local `toIso()` helper
-  already in the file (built from `getFullYear()`/`getMonth()`/`getDate()`) instead.
-
-## "Next upcoming event" widget (2026-07-17)
+## "Next upcoming event" widget (2026-07-17, copy updated 2026-07-18)
 
 `site/home.html` and `site/contact/join-us.html` each have their own copy of the same small
-inline script: fetch `data/upcoming-events.json` (the same file the Calendar reads, produced by
-`scripts/scrape-udisc.js`), find the earliest entry whose date is today or later, and replace a
-paragraph's placeholder text (`#nextEventText`) with "Next Weekly Mini: `<Weekday, Month Day>` at
-6:00 PM at Breckinridge Park...". User request: "just put our upcoming event with information"
-on both pages, replacing the old generic "we meet every Tuesday" copy. If the fetch fails or
-there's no future event in the file, the original static fallback text stays in place (the
-`<p>`'s initial content) — no error state, it just doesn't get replaced. Note the relative fetch
-path differs by page depth: `data/upcoming-events.json` from root-level `home.html`,
-`../data/upcoming-events.json` from one-level-deep `contact/join-us.html` — same
-`{{ROOT}}`-style depth gotcha as the shared header, just not templated since there are only two
-copies. If a third page needs this, consider extracting it instead of copy-pasting a third time.
+inline script: fetch `data/upcoming-events.json` (produced by `scripts/scrape-udisc.js`), find
+the earliest entry whose date is today or later, and replace a paragraph's placeholder text
+(`#nextEventText`) with "Next Weekly Mini: `<Weekday, Month Day>` at 6:00 PM at Breckinridge
+Park...". If the fetch fails or there's no future event in the file, the original static
+fallback text stays in place (the `<p>`'s initial content) — no error state, it just doesn't get
+replaced. Note the relative fetch path differs by page depth: `data/upcoming-events.json` from
+root-level `home.html`, `../data/upcoming-events.json` from one-level-deep
+`contact/join-us.html` — same `{{ROOT}}`-style depth gotcha as the shared header, just not
+templated since there are only two copies. If a third page needs this, consider extracting it
+instead of copy-pasting a third time.
+
+**Sign-up copy (2026-07-18)**: both the static fallback text and the dynamic replacement text
+say sign-up is required and sign-ups start at 5:30 PM (round itself still starts 6:00 PM) —
+changed by request from the old "no sign-up required, just show up" copy. If either page's text
+is edited again, update both the static `<p>` fallback and the JS template string in the same
+file, and mirror the change in the other page too (they intentionally say the same thing).
 
 ## Ace Gallery playing-with data (2026-07-17)
 

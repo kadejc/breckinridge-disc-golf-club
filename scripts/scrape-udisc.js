@@ -1,7 +1,8 @@
 // Scrapes new Breckinridge DGC Weekly Mini events from UDisc and appends them to
 // artifact_data.json in the documented format (see CLAUDE.md "Data format"). Also refreshes
-// data/upcoming-events.json (events found with no scores yet) for events/calendar.html --
-// that part runs even in dry-run mode, since it's a transient cache, not the historical record.
+// data/upcoming-events.json (events found with no scores yet), used by the "next upcoming
+// event" widgets on home.html and contact/join-us.html -- that part runs even in dry-run mode,
+// since it's a transient cache, not the historical record.
 //
 // No login/credentials needed: this league's schedule and per-event "Cards" leaderboard view
 // (?view=cards) are both public. If a future league ever needs auth, read credentials from
@@ -152,7 +153,7 @@ async function main() {
   console.log(`Schedule has ${scheduleSlugs.length} link(s); ${newSlugs.length} look like new events.`);
 
   const newEvents = [];
-  const upcomingEvents = []; // {slug, title, date} -- for data/upcoming-events.json (Events > Calendar)
+  const upcomingEvents = []; // {slug, title, date} -- for data/upcoming-events.json
   for (const slug of newSlugs) {
     console.log(`Scraping ${slug}...`);
     try {
@@ -180,7 +181,7 @@ async function main() {
 
   await browser.close();
 
-  // Always refresh the upcoming-events cache (used by events/calendar.html) regardless of
+  // Always refresh the upcoming-events cache (used by the home/join-us widgets) regardless of
   // --write, same as scripts/scrape-live-count.js does for data/live-event-count.json -- it's a
   // transient cache, not the canonical historical record artifact_data.json is.
   upcomingEvents.sort((a, b) => a.date.localeCompare(b.date));

@@ -13,7 +13,7 @@
     </div>
     <div class="card">
       <h3 style="margin-top:0;">Join Us</h3>
-      <p id="nextEventText" style="color:var(--ink-soft); font-size:14px;">Weekly Mini rounds every Tuesday at 6:00 PM at Breckinridge Park. No sign-up required — just show up.</p>
+      <p id="nextEventText" style="color:var(--ink-soft); font-size:14px;">Weekly Mini rounds every Tuesday at 6:00 PM at Breckinridge Park. Sign-up is required — sign-ups start at 5:30 PM.</p>
       <a class="btn" href="contact/join-us.html">Learn More</a>
     </div>
     <div class="card">
@@ -63,7 +63,7 @@
     var d = new Date(next.date + 'T00:00:00');
     var dateLabel = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     document.getElementById('nextEventText').textContent =
-      'Next Weekly Mini: ' + dateLabel + ' at 6:00 PM at Breckinridge Park. No sign-up required — just show up.';
+      'Next Weekly Mini: ' + dateLabel + ' at 6:00 PM at Breckinridge Park. Sign-up is required — sign-ups start at 5:30 PM.';
   }).catch(function(){});
 })();
 </script>

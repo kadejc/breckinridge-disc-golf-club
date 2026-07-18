@@ -186,32 +186,6 @@ test('ace gallery has playing-with info for every ace, no leftover placeholders'
   for (const text of playingWith) expect(text.trim()).not.toBe('Playing with:');
 });
 
-test('calendar shows events and can browse to a specific past month', async ({ page }) => {
-  const errors = [];
-  page.on('console', (msg) => { if (msg.type() === 'error') errors.push(msg.text()); });
-  await page.route('**/data/upcoming-events.json', (route) => route.fulfill({
-    contentType: 'application/json',
-    body: JSON.stringify({ updatedAt: '2026-07-17T00:00:00.000Z', events: [
-      { slug: 'future-event', title: 'Weekly Mini - All Welcome!!!', date: '2026-07-21' },
-    ] }),
-  }));
-  await page.goto('/events/calendar.html');
-
-  // A known past event (2026-07-14, already verified elsewhere in this suite) should show up
-  // once artifact_data.json loads, without navigating away from the default (current) month.
-  await expect(page.locator('.calendar-event-chip.past').first()).toBeVisible();
-  await expect(page.locator('.calendar-event-chip.upcoming').first()).toBeVisible();
-
-  // Browsing back to a month with no events shouldn't error and should show an empty grid.
-  const monthLabel = page.locator('#calMonthLabel');
-  const before = await monthLabel.textContent();
-  await page.locator('#calPrev').click();
-  await expect(monthLabel).not.toHaveText(before);
-  await expect(page.locator('.calendar-day').first()).toBeVisible();
-
-  expect(errors).toEqual([]);
-});
-
 test.describe('mobile nav', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
