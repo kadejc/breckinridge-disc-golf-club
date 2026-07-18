@@ -124,30 +124,24 @@ name. This was an explicit user request (2026-07-17), for player privacy.
   attendees. If the "shorten everyone" rule was meant to include Admins too, that's a scope call
   the user should confirm — it wasn't asked about explicitly.
 
-## Total money paid out counter
+## Total money paid out counter — removed (2026-07-18)
 
-`renderMoneyPaidOut()` in `src/app.js` renders a banner (`#moneyPaidOutBanner` in
-`src/body.html`) near the top of `stats.html`, above the tab strip, visible regardless of which
-tab is active. **Not** filtered by the year/season/division toggles — it's always the
-all-time grand total. Two parts, added together:
+The site used to show a running "Total Paid Out to Players" dollar figure in three places:
+`renderMoneyPaidOut()` + `#moneyPaidOutBanner` in `src/app.js`/`src/body.html` (top of
+`stats.html`), a duplicated copy of the same computation in `site/home.html`, and a "Total Paid
+Out for Aces" line in `site/gallery/ace-gallery.html`'s tally banner. **Removed by request** —
+the user was concerned about publicly displaying an aggregate dollar figure for the club (city/
+IRS exposure question, discussed in chat, not written up elsewhere). All three were deleted:
+the function, its call site, and the `#moneyPaidOutBanner` div in `src/app.js`/`src/body.html`;
+the banner div + inline script in `site/home.html`; and the second `<div>` (dollar figure) in
+`site/gallery/ace-gallery.html`'s `.tally-banner`, keeping the "Aces During the Mini" count.
 
-1. **Event payouts, all years** — summed live from `ROUNDS[].pay` via the existing `parsePay()`.
-   2024 used to be excluded (that year's payout data wasn't reliably tracked) but is now
-   included: see "2024 payout estimation" below for how that gap got filled 2026-07-18.
-2. **Ace payouts, all years** — a hardcoded constant, `ACE_TOTAL_PAID = 6621` (17 aces,
-   `ACE_COUNT = 17`), *not* computed from any data file, since aces aren't in `ROUNDS` at all
-   (they're a separate pot, unrelated to event placement). **This must be updated by hand in
-   `src/app.js` every time a new ace is added to `site/gallery/ace-gallery.html`** — the two
-   have no shared source of truth. Search `ACE_TOTAL_PAID` and `ACE_COUNT` when updating.
-
-**Also duplicated on the homepage** (`site/home.html`, 2026-07-17, user request: "put the payout
-total under the hero section"): since `home.html` is a standalone static page with no access to
-`src/app.js`'s bundle, it has its **own** copy of the same computation (`parsePay`,
-`ACE_TOTAL_PAID`, `ACE_COUNT`) in an inline `<script>`, fetching `artifact_data.json` client-side
-instead of having it embedded. **Three places now need updating in sync whenever a new ace is
-added**: `src/app.js`, `site/home.html`, and `site/gallery/ace-gallery.html`'s own tally banner
-(`.tally-figure` text + the aces-count figure) — there's still no shared source of truth between
-them, same caveat as above just one file wider.
+**Individual per-ace and per-event dollar amounts are intentionally still shown** (e.g. each
+Ace Gallery card's `.ace-amount`, Past Results payouts, the payout tables/calculator) — the
+user's concern was specifically about the aggregated running total reading like a financial
+disclosure, not about dollar figures generally. Don't reintroduce a sitewide or per-page grand
+total without checking with the user first, even if asked to "add back the payout summary" —
+confirm they mean the same thing before restoring it.
 
 ## 2024 payout estimation (2026-07-18)
 
@@ -182,15 +176,14 @@ Advanced.xlsx`'s "Payouts" sheet formulas (`Est`/`Total Purse`/`Avg Payout`/`Rem
    before running with `--write` (e.g. FA3 n=8: 1st=$25, 2nd=$18, T3×2 sharing (13+8)/2=$10 each
    — matched exactly).
 
-Filled 446 previously-null 2024 `pay` values across 28 events. The "Total Paid Out to Players"
-banner (see above) no longer excludes 2024 as a result. **The disclaimer text about 2024 being
-estimated was removed from the banner by user request 2026-07-18** (both `src/app.js` and
-`site/home.html`) — it now just reads "Event payouts plus all-time ace payouts (...)" with no
-mention of the estimation. **These are still reconstructed estimates, not verified real-world
-disbursements**, even though the UI no longer says so — keep that in mind if asked about the
-number's precision, and don't re-run this script against non-2024 years without checking with
-the user first (it was scoped to 2024 specifically because that's the year with the known data
-gap; other years' `null` pay values are more likely genuine non-cashes, not missing records).
+Filled 446 previously-null 2024 `pay` values across 28 events. (The "Total Paid Out to Players"
+banner these fed into no longer exists — removed 2026-07-18, see above — but the estimated `pay`
+values themselves are still in `artifact_data.json` and still feed individual Past Results
+payout displays.) **These are reconstructed estimates, not verified real-world disbursements** —
+keep that in mind if asked about the number's precision, and don't re-run this script against
+non-2024 years without checking with the user first (it was scoped to 2024 specifically because
+that's the year with the known data gap; other years' `null` pay values are more likely genuine
+non-cashes, not missing records).
 
 2024's own event-payout total is **$13,808** across 34 played events (2 of the 36 logged 2024
 events have 0 players/no data), consistent week-to-week (~$400-600 for the well-attended

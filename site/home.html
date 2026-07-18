@@ -4,8 +4,7 @@
   <p>Home of the Breckinridge DGC Weekly Mini — an 18-hole league that meets every Tuesday at 6:00 PM. Everyone is welcome.</p>
 </div>
 <div class="wrap">
-  <div class="tally-banner" id="moneyPaidOutBanner"></div>
-  <div class="grid-3" style="margin-top:8px;">
+  <div class="grid-3">
     <div class="card">
       <h3 style="margin-top:0;">League Stats</h3>
       <p style="color:var(--ink-soft); font-size:14px;">Standings, player lookups, hole-by-hole breakdowns, and full round-by-round history for every logged event.</p>
@@ -25,34 +24,6 @@
 </div>
 
 <script>
-// Money-paid-out total: mirrors renderMoneyPaidOut() in src/app.js. Keep ACE_TOTAL_PAID/
-// ACE_COUNT in sync with that file and site/gallery/ace-gallery.html by hand -- there's no
-// shared source of truth between the stats app bundle and this standalone static page.
-(function(){
-  var ACE_COUNT = 17;
-  var ACE_TOTAL_PAID = 6621;
-  function parsePay(pay){
-    if(!pay) return 0;
-    return String(pay).split('+').reduce(function(sum, part){
-      var n = parseFloat(part);
-      return sum + (isNaN(n) ? 0 : n);
-    }, 0);
-  }
-  fetch('artifact_data.json').then(function(r){ return r.json(); }).then(function(data){
-    var eventPayouts = 0;
-    (data.events || []).forEach(function(ev){
-      var cards = ev[4];
-      (cards || []).forEach(function(card){
-        (card[3] || []).forEach(function(p){ eventPayouts += parsePay(p[8]); });
-      });
-    });
-    var combined = Math.round(eventPayouts + ACE_TOTAL_PAID);
-    document.getElementById('moneyPaidOutBanner').innerHTML =
-      '<div><div class="tally-label">Total Paid Out to Players</div><div class="tally-figure">$'+combined.toLocaleString()+'</div></div>'+
-      '<div class="muted" style="font-size:12px; max-width:360px;">Event payouts plus all-time ace payouts ('+ACE_COUNT+' aces, $'+ACE_TOTAL_PAID.toLocaleString()+').</div>';
-  }).catch(function(){});
-})();
-
 // Next upcoming event, shared pattern with site/contact/join-us.html.
 (function(){
   fetch('data/upcoming-events.json').then(function(r){ return r.json(); }).then(function(data){

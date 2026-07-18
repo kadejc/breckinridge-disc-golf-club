@@ -15,18 +15,9 @@ test('home page loads with no console errors', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('home page shows the total-paid-out banner and the next upcoming event', async ({ page }) => {
+test('home page shows the next upcoming event', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('#moneyPaidOutBanner .tally-figure')).toHaveText(/^\$[\d,]+$/);
   await expect(page.locator('#nextEventText')).toContainText('Next Weekly Mini:');
-});
-
-test('home page total matches the stats dashboard total (same underlying data, two implementations)', async ({ page }) => {
-  await page.goto('/');
-  const homeTotal = await page.locator('#moneyPaidOutBanner .tally-figure').textContent();
-  await page.goto('/stats.html');
-  const statsTotal = await page.locator('#moneyPaidOutBanner .tally-figure').textContent();
-  expect(homeTotal).toBe(statsTotal);
 });
 
 test('join us page shows the next upcoming event', async ({ page }) => {
