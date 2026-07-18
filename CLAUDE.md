@@ -183,13 +183,23 @@ Advanced.xlsx`'s "Payouts" sheet formulas (`Est`/`Total Purse`/`Avg Payout`/`Rem
    — matched exactly).
 
 Filled 446 previously-null 2024 `pay` values across 28 events. The "Total Paid Out to Players"
-banner (see above) no longer excludes 2024 as a result — its disclaimer now says 2024 is
-"estimated from the division payout scale where not directly recorded" instead of excluded.
-**These are reconstructed estimates, not verified real-world disbursements** — don't present
-them as more certain than that if asked, and don't re-run this script against non-2024 years
-without checking with the user first (it was scoped to 2024 specifically because that's the year
-with the known data gap; other years' `null` pay values are more likely genuine non-cashes, not
-missing records).
+banner (see above) no longer excludes 2024 as a result. **The disclaimer text about 2024 being
+estimated was removed from the banner by user request 2026-07-18** (both `src/app.js` and
+`site/home.html`) — it now just reads "Event payouts plus all-time ace payouts (...)" with no
+mention of the estimation. **These are still reconstructed estimates, not verified real-world
+disbursements**, even though the UI no longer says so — keep that in mind if asked about the
+number's precision, and don't re-run this script against non-2024 years without checking with
+the user first (it was scoped to 2024 specifically because that's the year with the known data
+gap; other years' `null` pay values are more likely genuine non-cashes, not missing records).
+
+2024's own event-payout total is **$13,808** across 34 played events (2 of the 36 logged 2024
+events have 0 players/no data), consistent week-to-week (~$400-600 for the well-attended
+March-October weeks, ~$130-280 for the smaller November-December "Glow Mini" events) — verified
+2026-07-18 after the user flagged the *combined* all-time total as looking low; there was no bug,
+2024 alone is a meaningful chunk of the $36,525 all-time event-payout total. Re-verify this
+figure (`node -e` a quick sum over `artifact_data.json`, filtering `date.startsWith('2024')`) if
+that question comes up again rather than trusting this note forever, since new data keeps
+getting scraped in.
 
 ## Payout Calculator + Tuesday live-count automation
 

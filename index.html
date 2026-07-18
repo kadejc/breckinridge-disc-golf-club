@@ -156,7 +156,7 @@
     var combined = Math.round(eventPayouts + ACE_TOTAL_PAID);
     document.getElementById('moneyPaidOutBanner').innerHTML =
       '<div><div class="tally-label">Total Paid Out to Players</div><div class="tally-figure">$'+combined.toLocaleString()+'</div></div>'+
-      '<div class="muted" style="font-size:12px; max-width:360px;">Event payouts (2024 estimated from the division payout scale where not directly recorded) plus all-time ace payouts ('+ACE_COUNT+' aces, $'+ACE_TOTAL_PAID.toLocaleString()+').</div>';
+      '<div class="muted" style="font-size:12px; max-width:360px;">Event payouts plus all-time ace payouts ('+ACE_COUNT+' aces, $'+ACE_TOTAL_PAID.toLocaleString()+').</div>';
   }).catch(function(){});
 })();
 
