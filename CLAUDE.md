@@ -131,9 +131,9 @@ name. This was an explicit user request (2026-07-17), for player privacy.
 tab is active. **Not** filtered by the year/season/division toggles — it's always the
 all-time grand total. Two parts, added together:
 
-1. **Event payouts, excluding 2024** — summed live from `ROUNDS[].pay` via the existing
-   `parsePay()`. 2024 is excluded because the user said that year's payout data isn't reliably
-   tracked (disclaimer text says so on the banner); they may estimate/backfill it later.
+1. **Event payouts, all years** — summed live from `ROUNDS[].pay` via the existing `parsePay()`.
+   2024 used to be excluded (that year's payout data wasn't reliably tracked) but is now
+   included: see "2024 payout estimation" below for how that gap got filled 2026-07-18.
 2. **Ace payouts, all years** — a hardcoded constant, `ACE_TOTAL_PAID = 6621` (17 aces,
    `ACE_COUNT = 17`), *not* computed from any data file, since aces aren't in `ROUNDS` at all
    (they're a separate pot, unrelated to event placement). **This must be updated by hand in
@@ -148,6 +148,48 @@ instead of having it embedded. **Three places now need updating in sync whenever
 added**: `src/app.js`, `site/home.html`, and `site/gallery/ace-gallery.html`'s own tally banner
 (`.tally-figure` text + the aces-count figure) — there's still no shared source of truth between
 them, same caveat as above just one file wider.
+
+## 2024 payout estimation (2026-07-18)
+
+The user asked whether the payout scale could be used to reconstruct the missing 2024 payout
+data, rather than leaving it excluded forever. `scripts/estimate-2024-payouts.js`
+(`node scripts/estimate-2024-payouts.js --write`, dry-run without `--write`) fills in null 2024
+`pay` values in `artifact_data.json` by replicating — not approximating — the source
+spreadsheet's own tie-splitting formula, reverse-engineered from `Breck_Payout_Calculator_
+Advanced.xlsx`'s "Payouts" sheet formulas (`Est`/`Total Purse`/`Avg Payout`/`Remainder` columns):
+
+1. For each 2024 event, group players by division (only MPO/MP40/MA1/MA3/FA3 have a payout
+   table — Free is skipped entirely, same as everywhere else on the site).
+2. Look up that division's payout-by-position column for **that division's own player count
+   that event** (`data/payout-scale.json`, a plain-JSON export of the same 5 sheets the payout
+   calculator uses). MA3 and FA3 each use their own headcount against the shared `MA3-FA3_Pay`
+   table — verified against the spreadsheet's own per-event working sheet that they're computed
+   as two independent purses, not pooled into one combined field.
+3. Sort players by their existing scraped `pos` field (not re-derived from `toPar` — trust
+   what's already there). Assign each player a sequential base payout from the table, in rank
+   order, regardless of ties.
+4. For a tie label (e.g. two players both `"T5"`), sum the sequential base amounts across all
+   rows sharing that label into a "Total Purse", then floor-divide evenly across the tied
+   players — exactly `FLOOR.MATH(Total Purse / Tie Count)` from the spreadsheet. The leftover
+   remainder is not distributed further (matches the spreadsheet's own `Remainder` column,
+   which also isn't redistributed).
+5. **Never overwrites an already-non-null `pay`** — a handful of late-2024 events (Oct-Dec, the
+   "Glow Mini" events) already had real recorded payouts; those are left exactly as scraped.
+   Only genuinely-missing values get an estimate. Players with an unparseable/blank `pos` are
+   still counted toward that division's headcount (for purse sizing) but excluded from receiving
+   a payout, since there's no rank to place them at.
+6. Manually verified several outputs by hand against the spreadsheet's raw position tables
+   before running with `--write` (e.g. FA3 n=8: 1st=$25, 2nd=$18, T3×2 sharing (13+8)/2=$10 each
+   — matched exactly).
+
+Filled 446 previously-null 2024 `pay` values across 28 events. The "Total Paid Out to Players"
+banner (see above) no longer excludes 2024 as a result — its disclaimer now says 2024 is
+"estimated from the division payout scale where not directly recorded" instead of excluded.
+**These are reconstructed estimates, not verified real-world disbursements** — don't present
+them as more certain than that if asked, and don't re-run this script against non-2024 years
+without checking with the user first (it was scoped to 2024 specifically because that's the year
+with the known data gap; other years' `null` pay values are more likely genuine non-cashes, not
+missing records).
 
 ## Payout Calculator + Tuesday live-count automation
 
@@ -404,6 +446,22 @@ DOM by hand. As of 2026-07-17 there's a real scraper:
 
 ## Known quirks / deliberate design decisions (don't "fix" these by accident)
 
+- **Local manual browser testing over a long session can serve stale `fetch()` data with zero
+  error or warning** — cost real debugging time 2026-07-18. `scripts/serve.js` now sends
+  `Cache-Control: no-store` on every response specifically because of this. The trap: the same
+  `localhost:PORT` origin gets reused across a long working session serving many different
+  versions of the same files (rebuilds, data edits). A page's plain `fetch('artifact_data.json')`
+  (no `cache` option) can silently return an old cached response from hours earlier in the
+  session — `Content-Length` even looks consistent at a glance since JS string `.length` counts
+  UTF-16 units, not bytes (this file has accented names, so the two numbers differ *anyway*,
+  which is a red herring, not the bug). Symptoms: computed totals correct when checked via `curl`
+  or an explicit `fetch(url, {cache:'no-store'})`, but wrong when checked by reading the live
+  page's own rendered output in the same reused browser tab — including in a *freshly created*
+  tab, since HTTP cache is shared per browser profile, not per tab. A server response header
+  added *after* the stale entry was cached doesn't fix it either — the browser serves cache hits
+  without even asking the server. If a page's live-rendered number ever looks wrong during manual
+  testing, first re-verify with Playwright (fresh browser context every run, immune to this) or
+  `curl`/`fetch(...,{cache:'no-store'})` before assuming the underlying logic is broken.
 - **Player Table horizontal scrollbar is rendered at the top** via a pure-CSS trick: the
   scroll container (`#playerTableWrap`) is flipped with `transform: scaleY(-1)`, and the
   `<table>` inside it is flipped back the same way. This moves the browser's native

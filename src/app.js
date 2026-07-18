@@ -519,10 +519,12 @@ function isWin(pos){
   return pos === '1' || pos === 'T1';
 }
 
-// ---------- Total money paid out (event payouts, excl. 2024, + aces) ----------
+// ---------- Total money paid out (event payouts + aces) ----------
 // Aces aren't in ROUNDS (they're a separate pot, not tied to event placement) -- this total
 // must be kept in sync by hand with the ace count/total in site/gallery/ace-gallery.html
-// whenever a new ace is added. See CLAUDE.md.
+// whenever a new ace is added. See CLAUDE.md. 2024 event payouts are a mix of real recorded
+// values and estimates reconstructed from the payout scale (scripts/estimate-2024-payouts.js,
+// see CLAUDE.md) -- no longer excluded now that the gap is filled.
 const ACE_COUNT = 17;
 const ACE_TOTAL_PAID = 6621;
 function renderMoneyPaidOut(){
@@ -530,13 +532,12 @@ function renderMoneyPaidOut(){
   if(!el) return;
   let eventPayouts = 0;
   for(const r of ROUNDS){
-    if(r.date && r.date.slice(0,4) === '2024') continue; // 2024 payout data isn't reliably tracked
     eventPayouts += parsePay(r.pay);
   }
   const combined = Math.round(eventPayouts + ACE_TOTAL_PAID);
   el.innerHTML =
     '<div><div class="tally-label">Total Paid Out to Players</div><div class="tally-figure">$'+combined.toLocaleString()+'</div></div>'+
-    '<div class="muted" style="font-size:12px; max-width:360px;">Event payouts (excluding 2024 — not reliably tracked that year) plus all-time ace payouts ('+ACE_COUNT+' aces, $'+ACE_TOTAL_PAID.toLocaleString()+').</div>';
+    '<div class="muted" style="font-size:12px; max-width:360px;">Event payouts (2024 estimated from the division payout scale where not directly recorded) plus all-time ace payouts ('+ACE_COUNT+' aces, $'+ACE_TOTAL_PAID.toLocaleString()+').</div>';
 }
 renderMoneyPaidOut();
 
