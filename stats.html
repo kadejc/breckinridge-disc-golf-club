@@ -289,6 +289,33 @@ button:hover, .btn:hover { background: var(--accent-dark); text-decoration: none
 .ace-card .ace-meta { font-size: 12.5px; color: var(--ink-soft); }
 .ace-card .ace-amount { font-weight: 700; color: var(--accent); margin-top: 4px; }
 
+.calendar-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.calendar-header h2 { margin: 0; font-size: 18px; }
+.calendar-nav-btn { padding: 7px 14px; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.calendar-daylabel { text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding-bottom: 4px; }
+.calendar-day {
+  min-height: 84px; border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
+  padding: 6px; background: var(--surface); font-size: 12px;
+}
+.calendar-day.other-month { background: var(--bg); color: var(--muted); }
+.calendar-day.today { border-color: var(--accent); border-width: 2px; }
+.calendar-day .day-num { font-weight: 700; margin-bottom: 4px; }
+.calendar-event-chip {
+  display: block; border-radius: 5px; padding: 3px 6px; margin-top: 3px;
+  font-size: 11px; line-height: 1.3; font-weight: 600; text-decoration: none;
+}
+.calendar-event-chip.past { background: var(--accent-tint); color: var(--accent-dark); }
+.calendar-event-chip.upcoming { background: var(--bg); color: var(--ink-soft); border: 1px dashed var(--border); }
+.calendar-legend { display: flex; gap: 16px; font-size: 12px; color: var(--ink-soft); margin-top: 12px; }
+.calendar-legend .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.calendar-legend .swatch.past { background: var(--accent-tint); border: 1px solid var(--accent); }
+.calendar-legend .swatch.upcoming { background: var(--bg); border: 1px dashed var(--border); }
+@media (max-width: 720px) {
+  .calendar-day { min-height: 60px; font-size: 10.5px; }
+  .calendar-event-chip { font-size: 9.5px; padding: 2px 4px; }
+}
+
 
 :root {
   color-scheme: light;
@@ -573,8 +600,6 @@ canvas { max-width: 100%; }
         <button class="nav-link">About</button>
         <div class="nav-dropdown">
           <a href="about/who-we-are.html">Who we are</a>
-          <a href="about/admins.html">Admins</a>
-          <a href="about/course-info.html">Course Info</a>
           <a href="about/sponsors.html">Sponsors</a>
           <a href="about/faq.html">FAQ</a>
           <a href="about/bylaws.html">Club Bylaws</a>
@@ -585,7 +610,7 @@ canvas { max-width: 100%; }
         <div class="nav-dropdown">
           <a class="external" href="https://www.cor.net/departments/parks-recreation/athletics/breckinridge-park-disc-golf" target="_blank" rel="noopener">Book the course</a>
           <a href="resources/payout-tables.html">Our payout tables</a>
-          <a href="resources/course-map.html">Course Map/Scorecard</a>
+          <a href="resources/course-info.html">Course Info</a>
           <a href="resources/strike-tracker.html">Strike Tracker</a>
         </div>
       </div>
@@ -635,7 +660,6 @@ canvas { max-width: 100%; }
         <button class="nav-link">News</button>
         <div class="nav-dropdown">
           <a href="news/announcements.html">Announcements</a>
-          <a href="news/tournament-recaps.html">Tournament Recaps</a>
         </div>
       </div>
     </nav>
@@ -1358,16 +1382,28 @@ function renderTopWinners(){
 renderTopWinners();
 
 // ---------- Course Records ----------
+// Rounds excluded from the Course Records board on a case-by-case basis (not general stats --
+// these still count everywhere else, e.g. Top Winners, Player Table). Requested by the user
+// 2026-07-17 for "other reasons" not specified; match on name+date+div so only that exact round
+// is excluded, not every round the player has ever logged.
+const COURSE_RECORD_EXCLUSIONS = [
+  {name: 'Jaxon E', date: '2025-08-19', div: 'MA3'},
+  {name: 'Sam Persons', date: '2026-05-05', div: 'MA3'},
+];
+// Free is an unstructured/no-stakes division -- not shown on the records board.
+const COURSE_RECORD_HIDDEN_DIVISIONS = new Set(['Free']);
+
 function renderCourseRecords(){
   const season = getSeasonFilter();
   let rounds = ROUNDS;
   if(season) rounds = rounds.filter(r=>r.season===season);
   rounds = rounds.filter(r=>matchesYear(r.date) && matchesDivision(r.div) && r.toPar!==null && r.toPar!==undefined);
+  rounds = rounds.filter(r=>!COURSE_RECORD_EXCLUSIONS.some(ex=>ex.name===r.name && ex.date===r.date && ex.div===r.div));
   const el = document.getElementById('courseRecordsOut');
 
   const byDiv = {};
   for(const r of rounds){
-    if(!r.div) continue;
+    if(!r.div || COURSE_RECORD_HIDDEN_DIVISIONS.has(r.div)) continue;
     (byDiv[r.div] = byDiv[r.div] || []).push(r);
   }
   const divsToShow = DIVISIONS.filter(d=>byDiv[d]);

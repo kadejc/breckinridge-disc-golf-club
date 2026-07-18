@@ -1,5 +1,7 @@
 // Scrapes new Breckinridge DGC Weekly Mini events from UDisc and appends them to
-// artifact_data.json in the documented format (see CLAUDE.md "Data format").
+// artifact_data.json in the documented format (see CLAUDE.md "Data format"). Also refreshes
+// data/upcoming-events.json (events found with no scores yet) for events/calendar.html --
+// that part runs even in dry-run mode, since it's a transient cache, not the historical record.
 //
 // No login/credentials needed: this league's schedule and per-event "Cards" leaderboard view
 // (?view=cards) are both public. If a future league ever needs auth, read credentials from
@@ -27,6 +29,7 @@ const { chromium } = require('@playwright/test');
 
 const LEAGUE_SLUG = 'breckinridge-dgc-kwxbSd';
 const DATA_PATH = path.join(__dirname, '..', 'artifact_data.json');
+const UPCOMING_PATH = path.join(__dirname, '..', 'data', 'upcoming-events.json');
 const WRITE = process.argv.includes('--write');
 
 const DIVISION_MERGES = { MMPO: 'MPO', FA1: 'FA3', free: 'Free' };
@@ -149,6 +152,7 @@ async function main() {
   console.log(`Schedule has ${scheduleSlugs.length} link(s); ${newSlugs.length} look like new events.`);
 
   const newEvents = [];
+  const upcomingEvents = []; // {slug, title, date} -- for data/upcoming-events.json (Events > Calendar)
   for (const slug of newSlugs) {
     console.log(`Scraping ${slug}...`);
     try {
@@ -163,6 +167,7 @@ async function main() {
       }
       if (totalPlayers === 0) {
         console.log(`  x skipped "${title}" (${date}): no scores yet (upcoming or unplayed)`);
+        if (date) upcomingEvents.push({ slug, title, date });
         continue;
       }
 
@@ -175,8 +180,16 @@ async function main() {
 
   await browser.close();
 
+  // Always refresh the upcoming-events cache (used by events/calendar.html) regardless of
+  // --write, same as scripts/scrape-live-count.js does for data/live-event-count.json -- it's a
+  // transient cache, not the canonical historical record artifact_data.json is.
+  upcomingEvents.sort((a, b) => a.date.localeCompare(b.date));
+  fs.mkdirSync(path.dirname(UPCOMING_PATH), { recursive: true });
+  fs.writeFileSync(UPCOMING_PATH, JSON.stringify({ updatedAt: new Date().toISOString(), events: upcomingEvents }, null, 2) + '\n');
+  console.log(`Wrote ${upcomingEvents.length} upcoming event(s) to ${UPCOMING_PATH}.`);
+
   if (!newEvents.length) {
-    console.log('Nothing new to add.');
+    console.log('Nothing new to add to artifact_data.json.');
     return;
   }
 

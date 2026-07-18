@@ -23,15 +23,24 @@ per top-level section — the user explicitly asked for each dropdown option to 
   content, so splitting them into files would mean duplicating the embedded dataset per page.
 - `about/`, `resources/`, `gallery/`, `contact/`, `events/`, `rules-etiquette/`, `news/` — one
   subdirectory per top-level nav item, one `.html` file per dropdown sub-item inside it (e.g.
-  `about/who-we-are.html`, `about/course-info.html`, ...). Dropdown items that are pure external
-  redirects (Book the course, Local Rules, PDGA Rules, Apply to help, Social Media, Tournament
-  Schedule) have no page — the nav link goes straight to the external URL. **There is no
-  Membership section** — the user had it removed 2026-07-17 (dropdown item, all 3 sub-pages,
+  `about/who-we-are.html`, `resources/course-info.html`, ...). Dropdown items that are pure
+  external redirects (Book the course, Local Rules, PDGA Rules, Apply to help, Social Media,
+  Tournament Schedule) have no page — the nav link goes straight to the external URL. **There is
+  no Membership section** — the user had it removed 2026-07-17 (dropdown item, all 3 sub-pages,
   and `membership/`/`site/membership/` deleted). Rules & Etiquette also lost its Course
   Etiquette sub-item the same day (removed by request) — that dropdown now only has the two
   external links (Local Rules, PDGA Rules), so `rules-etiquette/` has no internal page of its
-  own either. `resources/strike-tracker.html` was added the same day (Resources dropdown, 4th
-  item) — structure only, no strike rules or data supplied yet.
+  own either. `resources/strike-tracker.html` was added the same day (Resources dropdown) —
+  structure only, no strike rules or data supplied yet.
+  **Two page merges (also 2026-07-17, by request):** About's old `course-info.html` was merged
+  into Resources' old `course-map.html`, becoming a single `resources/course-info.html` (hole
+  table + flyover videos + course map image + scorecard button, all one page) — the About
+  dropdown lost its "Course Info" item entirely, and Resources' "Course Map/Scorecard" item was
+  relabeled "Course Info" pointing at the merged page. Separately, About's old `admins.html` was
+  merged into `about/who-we-are.html` (Admins content now sits in its own `<h2>Admins</h2>`
+  section below the club description on the same page) — the About dropdown lost its standalone
+  "Admins" item. If you're looking for either of those old files, they don't exist anymore;
+  don't recreate them as separate pages without checking with the user first.
 - `shared/site.css` — single source of truth for CSS: color variables, base styles, the
   dropdown nav, footer, and generic page components (`.hero`, `.page-section`, `.card`,
   `.placeholder-note`, `.data-table`, `.photo-grid`, etc). Marketing pages link it externally;
@@ -59,20 +68,23 @@ per top-level section — the user explicitly asked for each dropdown option to 
   for everything).** Never hand-edit the generated root/subdirectory HTML pages.
 
 **Placeholder content still outstanding** (as of 2026-07-17): FAQ, Club Bylaws, Newsletter
-Signup, Calendar, Announcements, Tournament Recaps, Strike Tracker (no rules or data supplied),
-the bio text for each Admin (headshots are placeholders too — real photos need to be supplied),
-the description/logo for each Sponsor, and the "Playing with" field + photo for each Ace Gallery
-entry. Search for `placeholder-note` across `site/**/*.html` and `src/body.html` to find them
-all; that search should return exactly these.
+Signup, Announcements, Strike Tracker (no rules or data supplied), the bio text for each Admin
+(headshots are placeholders too — real photos need to be supplied), the description/logo for
+each Sponsor, and the "Playing with" field + photo for each Ace Gallery entry. Search for
+`placeholder-note` across `site/**/*.html` and `src/body.html` to find them all; that search
+should return exactly these. **News no longer has a Tournament Recaps item** — removed by
+request 2026-07-17, News now only has Announcements.
 
-**No longer placeholders** (real content added 2026-07-17): Admins (Kade Capps, Sean Temple, Ace
-Wall — headshot + bio *slots* exist, but only names are real, bios/photos still pending),
-Sponsors (Replay Sports Gear, Hooligan Discs — same: slots exist, logos/descriptions pending;
-"Become a Sponsor" copy about donating a weekly closest-to-the-pin prize is real), Our Payout
-Tables (pulled from `Breck_Payout_Calculator_Advanced.xlsx`, see below, now also has an
-interactive calculator), the Course Records stats tab (real computation, see "Stats dashboard"
-below), and Ace Gallery (all 17 known aces populated with hole/name/date/amount — only the
-per-ace photo and "playing with" field are still placeholders).
+**No longer placeholders**: Admins (Kade Capps, Sean Temple, Ace Wall — now a section on
+`about/who-we-are.html`, see the page-merge note above; headshot + bio *slots* exist, but only
+names are real, bios/photos still pending), Sponsors (Replay Sports Gear, Hooligan Discs — same:
+slots exist, logos/descriptions pending; "Become a Sponsor" copy about donating a weekly
+closest-to-the-pin prize is real), Our Payout Tables (pulled from
+`Breck_Payout_Calculator_Advanced.xlsx`, see below, now also has an interactive calculator), the
+Course Records stats tab (real computation, see "Course Records manual exclusions" below), Ace
+Gallery (all 17 known aces populated with hole/name/date/amount — only the per-ace photo and
+"playing with" field are still placeholders), and Calendar (real month-grid, see "Events
+Calendar" below).
 
 ## Player name shortening (privacy)
 
@@ -171,6 +183,51 @@ sheets).
     "Participants/Registered" count (visible even pre-event, verified 2026-07-17) reflects
     app RSVPs, not actual turnout for a league where people just show up and get added to
     cards, so it wasn't used.
+
+## Course Records manual exclusions (2026-07-17)
+
+`src/app.js` has two hardcoded exclusion mechanisms in `renderCourseRecords()`, both by
+explicit user request, both scoped to the *records board only* — excluded rounds still count
+everywhere else (Top Winners, Player Table, Past Results, etc.):
+
+- `COURSE_RECORD_EXCLUSIONS` — an array of `{name, date, div}` matched exactly against a round
+  before it's eligible for the records list. Currently excludes Jaxon E's 2025-08-19 MA3 round
+  and Sam Persons' 2026-05-05 MA3 round ("didn't count for other reasons" — not specified further
+  by the user). Match on all three fields, not just name, so only that one round is excluded if
+  the same player has other qualifying rounds.
+- `COURSE_RECORD_HIDDEN_DIVISIONS` — a `Set` of division names never shown on the records board
+  at all. Currently just `Free`.
+
+If more exclusions come up, add to these two constants rather than filtering ad hoc inside the
+render function.
+
+## Events Calendar (2026-07-17)
+
+`events/calendar.html` — real month-grid calendar (Sun-start, 6 rows), replacing what was a
+placeholder. Prev/Next buttons cycle by month (`view.setMonth(±1)` + re-render); no server, all
+client-side.
+
+- **Data sources**, both fetched client-side on page load (not embedded, unlike `stats.html`):
+  - `../artifact_data.json` — every past event (`slug`/`title`/`date` pulled straight out of the
+    same array the stats dashboard uses; the rest of that ~380KB file, i.e. all the per-round
+    score data, is ignored here). Rendered as `.calendar-event-chip.past`.
+  - `../data/upcoming-events.json` — events found on UDisc's schedule with no scores yet.
+    Rendered as `.calendar-event-chip.upcoming`. Produced by `scripts/scrape-udisc.js`, which now
+    writes this file as a side effect on *every* run (dry-run included — it's a transient cache,
+    not the historical record) alongside its existing artifact_data.json-updating behavior:
+    whichever new-to-us events it finds with zero recorded players get collected into this file
+    instead of being silently skipped like before. Run `npm run scrape` (or the `--write`
+    variant) to refresh it; nothing currently does this on a schedule (unlike the Tuesday
+    live-count check) — could be added to the same GitHub Action if the user wants the calendar
+    to self-update instead of requiring a manual scrape.
+- Both fetches degrade gracefully if missing/unreachable (calendar just renders with fewer/no
+  chips; only the `artifact_data.json` failure shows a `#calStatus` note, since that one's the
+  primary data source).
+- **Timezone gotcha already fixed once**: don't compute the calendar grid's day keys or "is this
+  today" check with `date.toISOString().slice(0,10)` on a locally-constructed `Date` — that
+  converts through UTC and shifts the date by one for any visitor browsing from a timezone ahead
+  of UTC (local midnight is still "yesterday" in UTC there). Use the local `toIso()` helper
+  already in the file (built from `getFullYear()`/`getMonth()`/`getDate()`) instead.
 
 ## Stats dashboard build system (added in Claude Code, post-handoff)
 

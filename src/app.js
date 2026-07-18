@@ -585,16 +585,28 @@ function renderTopWinners(){
 renderTopWinners();
 
 // ---------- Course Records ----------
+// Rounds excluded from the Course Records board on a case-by-case basis (not general stats --
+// these still count everywhere else, e.g. Top Winners, Player Table). Requested by the user
+// 2026-07-17 for "other reasons" not specified; match on name+date+div so only that exact round
+// is excluded, not every round the player has ever logged.
+const COURSE_RECORD_EXCLUSIONS = [
+  {name: 'Jaxon E', date: '2025-08-19', div: 'MA3'},
+  {name: 'Sam Persons', date: '2026-05-05', div: 'MA3'},
+];
+// Free is an unstructured/no-stakes division -- not shown on the records board.
+const COURSE_RECORD_HIDDEN_DIVISIONS = new Set(['Free']);
+
 function renderCourseRecords(){
   const season = getSeasonFilter();
   let rounds = ROUNDS;
   if(season) rounds = rounds.filter(r=>r.season===season);
   rounds = rounds.filter(r=>matchesYear(r.date) && matchesDivision(r.div) && r.toPar!==null && r.toPar!==undefined);
+  rounds = rounds.filter(r=>!COURSE_RECORD_EXCLUSIONS.some(ex=>ex.name===r.name && ex.date===r.date && ex.div===r.div));
   const el = document.getElementById('courseRecordsOut');
 
   const byDiv = {};
   for(const r of rounds){
-    if(!r.div) continue;
+    if(!r.div || COURSE_RECORD_HIDDEN_DIVISIONS.has(r.div)) continue;
     (byDiv[r.div] = byDiv[r.div] || []).push(r);
   }
   const divsToShow = DIVISIONS.filter(d=>byDiv[d]);

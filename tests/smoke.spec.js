@@ -36,7 +36,11 @@ test('every nav dropdown opens and every internal link resolves', async ({ page,
     }
     await button.click(); // close it again before opening the next one
   }
-  expect(checked.size).toBeGreaterThanOrEqual(16); // one page per non-external dropdown item
+  // Loose sanity floor, not an exact count -- this includes every distinct stats.html#hash link
+  // too (each checked as its own request, even though the server sees the same URL once the
+  // fragment is stripped), so it's larger than "one per page" and not worth hand-maintaining
+  // precisely on every nav edit.
+  expect(checked.size).toBeGreaterThan(10);
 });
 
 test('stats dashboard tabs render and deep-link via hash', async ({ page }) => {
@@ -81,8 +85,8 @@ test('player names are shortened to "First L." everywhere, never a full last nam
   expect(cells).not.toContain('Kade Capps');
 });
 
-test('course info page has 18 hole video buttons that open a modal player', async ({ page }) => {
-  await page.goto('/about/course-info.html');
+test('course info page (merged with course map/scorecard) has hole videos and a course map image', async ({ page, request }) => {
+  await page.goto('/resources/course-info.html');
   const buttons = page.locator('.hole-video-btn');
   await expect(buttons).toHaveCount(18);
 
@@ -95,10 +99,7 @@ test('course info page has 18 hole video buttons that open a modal player', asyn
   await page.locator('#holeVideoClose').click();
   await expect(overlay).not.toHaveClass(/open/);
   await expect(overlay.locator('iframe')).toHaveCount(0); // playback stopped, not just hidden
-});
 
-test('resources course map image loads', async ({ page, request }) => {
-  await page.goto('/resources/course-map.html');
   const img = page.locator('img[alt*="course map" i]');
   const src = await img.getAttribute('src');
   const url = new URL(src, page.url());
@@ -141,6 +142,32 @@ test('payout calculator auto-fills from data/live-event-count.json when present'
   // Manually changing the player count is a deliberate override -- the auto-fill note goes away.
   await page.selectOption('#calcPlayers', '10');
   await expect(note).toBeHidden();
+});
+
+test('calendar shows events and can browse to a specific past month', async ({ page }) => {
+  const errors = [];
+  page.on('console', (msg) => { if (msg.type() === 'error') errors.push(msg.text()); });
+  await page.route('**/data/upcoming-events.json', (route) => route.fulfill({
+    contentType: 'application/json',
+    body: JSON.stringify({ updatedAt: '2026-07-17T00:00:00.000Z', events: [
+      { slug: 'future-event', title: 'Weekly Mini - All Welcome!!!', date: '2026-07-21' },
+    ] }),
+  }));
+  await page.goto('/events/calendar.html');
+
+  // A known past event (2026-07-14, already verified elsewhere in this suite) should show up
+  // once artifact_data.json loads, without navigating away from the default (current) month.
+  await expect(page.locator('.calendar-event-chip.past').first()).toBeVisible();
+  await expect(page.locator('.calendar-event-chip.upcoming').first()).toBeVisible();
+
+  // Browsing back to a month with no events shouldn't error and should show an empty grid.
+  const monthLabel = page.locator('#calMonthLabel');
+  const before = await monthLabel.textContent();
+  await page.locator('#calPrev').click();
+  await expect(monthLabel).not.toHaveText(before);
+  await expect(page.locator('.calendar-day').first()).toBeVisible();
+
+  expect(errors).toEqual([]);
 });
 
 test.describe('mobile nav', () => {
