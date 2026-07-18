@@ -1,0 +1,38 @@
+name: CI
+
+# Verifies that generated HTML in the repo actually matches what `npm run build` produces from
+# the checked-in source (catches "forgot to rebuild before committing"), then runs the Playwright
+# smoke suite. GitHub Pages serves the committed generated files directly (no build step at
+# deploy time), so this is a check, not a deploy -- it doesn't push anything.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+
+      - run: npm run build
+
+      - name: Verify committed generated files are up to date
+        run: |
+          if ! git diff --quiet; then
+            echo "::error::Generated files are out of date. Run 'npm run build' locally and commit the result."
+            git diff --stat
+            exit 1
+          fi
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm test

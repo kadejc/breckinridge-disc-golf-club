@@ -568,10 +568,12 @@ DOM by hand. As of 2026-07-17 there's a real scraper:
 Repo: the user's existing GitHub repo behind `kadejc.github.io/breckinridge-disc-golf-club/`.
 GitHub Pages is configured to deploy from a branch, serving whatever is at `index.html` in the
 repo root — that's now the home page (built by `build-site.js`), with the stats dashboard at
-`stats.html`. Deploys are still manual: run `npm run build`, commit the generated root HTML
-files, push. A good next Claude Code task: wire up a real `git` workflow (commit + push) and/or
-a GitHub Action that runs the build automatically on push, rather than committing generated
-files by hand each time.
+`stats.html`. **Pages serves the committed generated HTML directly; there is no build step at
+deploy time.** Deploys are still `npm run build` + commit the generated root HTML + push, done
+by hand — that part hasn't changed. What *is* now automated (2026-07-18, see
+`.github/workflows/ci.yml` and `.github/workflows/scrape-new-events.yml`): a push to `main`
+gets its generated files and tests verified, and new events get scraped on a schedule instead of
+requiring a manual `npm run scrape`. See "CI + scraper automation" below.
 
 ## Suggested next steps in Claude Code
 
@@ -592,9 +594,9 @@ files by hand each time.
    the site is built" above for what it handles and its limitations. No login turned out to be
    needed; verified against real data 2026-07-17.
 5. ~~Wire up a real `git` workflow (commit + push) for deploys.~~ Done — repo is on GitHub
-   Pages (main branch, root), first full-site push was 2026-07-17. Still no CI: `npm run build`
-   + commit + push is manual. A GitHub Action that runs the build (and ideally `npm test`) on
-   push would close that gap.
+   Pages (main branch, root), first full-site push was 2026-07-17. Deploys themselves (`npm run
+   build` + commit + push) are still manual by design — see the CI note below for what *is* now
+   automated.
 6. Fill in the many `.placeholder-note` content sections (see "Site structure" above) as the
    user supplies content.
 7. Gallery/Ace Gallery photos: user decided (2026-07-17) **not** to import UDisc's 35 course
@@ -602,5 +604,30 @@ files by hand each time.
    attribution/license, so republishing them carries copyright risk. `gallery/photos.html` and
    `gallery/ace-gallery.html` stay placeholders until the user supplies photos they actually
    have rights to.
-8. Run `npm run scrape -- --write` periodically (or wire it into a scheduled GitHub Action) to
-   pick up new Weekly Mini events automatically instead of running it by hand.
+8. ~~Run `npm run scrape -- --write` periodically (or wire it into a scheduled GitHub Action).~~
+   Done — see "CI + scraper automation" below.
+
+## CI + scraper automation (2026-07-18)
+
+Two GitHub Actions workflows, both following the same shape as the pre-existing
+`tuesday-live-count.yml` (checkout, setup-node, install, run, conditionally commit+push with
+`git config user.name "github-actions[bot]"`):
+
+- **`.github/workflows/ci.yml`** — on every push/PR to `main` (plus manual `workflow_dispatch`):
+  runs `npm run build`, then fails the job if that produces any diff (`git diff --quiet`) —
+  this is the automated version of "did you remember to rebuild before committing?" — then runs
+  the full Playwright suite (`npx playwright install --with-deps chromium` + `npm test`). It's a
+  **check only, not a deploy**: GitHub Pages serves whatever generated HTML is already committed
+  to `main`, so this workflow never pushes anything.
+- **`.github/workflows/scrape-new-events.yml`** — scheduled Wednesday 12:00 UTC (day after the
+  Tuesday Weekly Mini, giving UDisc time to finalize scores) plus manual `workflow_dispatch`:
+  runs `node scripts/scrape-udisc.js --write`, then **`npm run build`** (required — `RAW` in
+  `stats.html`/`breckinridge_artifact.html` is `artifact_data.json` embedded as a JS literal at
+  build time per `scripts/build.js`, so a scrape with no rebuild would leave the live site
+  showing stale data even though the JSON file on disk is current), then commits+pushes
+  `artifact_data.json`, `data/upcoming-events.json`, and the three generated HTML files if
+  anything changed. Commit message ends in `[skip ci]` (matching `tuesday-live-count.yml`'s
+  existing convention) so this workflow's own push doesn't retrigger `ci.yml`.
+- Both are idempotent/safe to run repeatedly or trigger manually — `scrape-udisc.js` already
+  dedupes against existing event slugs (see "How the site is built" above), and `ci.yml` makes
+  no commits at all.

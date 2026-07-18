@@ -1,0 +1,41 @@
+name: Scrape new Weekly Mini events
+
+# Runs scripts/scrape-udisc.js so new events (and the upcoming-events cache) get picked up
+# automatically instead of requiring someone to run `npm run scrape -- --write` by hand.
+# artifact_data.json feeds stats.html/breckinridge_artifact.html as an embedded JS literal (see
+# scripts/build.js), so a rebuild is required any time it changes -- this workflow does that too,
+# not just the scrape.
+on:
+  schedule:
+    # 12:00 UTC every Wednesday (~6-7am Central, after the DST shift) -- the day after the
+    # Tuesday Weekly Mini, giving UDisc scores time to be finalized overnight.
+    - cron: '0 12 * * 3'
+  workflow_dispatch: {} # allows a manual "Run workflow" test from the Actions tab
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+
+      - run: node scripts/scrape-udisc.js --write
+
+      - name: Rebuild generated HTML if data changed
+        run: npm run build
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add artifact_data.json data/upcoming-events.json breckinridge_artifact.html breckinridge_public.html stats.html
+          git diff --cached --quiet || git commit -m "Scrape new Weekly Mini events [skip ci]"
+          git diff --cached --quiet || git push
