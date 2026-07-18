@@ -68,11 +68,12 @@ per top-level section — the user explicitly asked for each dropdown option to 
   for everything).** Never hand-edit the generated root/subdirectory HTML pages.
 
 **Placeholder content still outstanding** (as of 2026-07-17): FAQ, Club Bylaws, Newsletter
-Signup, Announcements, Strike Tracker (no rules or data supplied), the bio text for each Admin
-(headshots are placeholders too — real photos need to be supplied), the description/logo for
-each Sponsor, and the "Playing with" field + photo for each Ace Gallery entry. Search for
-`placeholder-note` across `site/**/*.html` and `src/body.html` to find them all; that search
-should return exactly these. **News no longer has a Tournament Recaps item** — removed by
+Signup, Announcements, the strike *rules* (what earns one, what happens after N of them — the
+Strike Tracker's actual strike data is real, see below), the bio text for each Admin (headshots
+are placeholders too — real photos need to be supplied), the description/logo for each Sponsor,
+and the photo for each Ace Gallery entry (its "Playing with" field is real now, see below).
+Search for `placeholder-note` across `site/**/*.html` and `src/body.html` to find them all; that
+search should return exactly these. **News no longer has a Tournament Recaps item** — removed by
 request 2026-07-17, News now only has Announcements.
 
 **No longer placeholders**: Admins (Kade Capps, Sean Temple, Ace Wall — now a section on
@@ -82,9 +83,10 @@ slots exist, logos/descriptions pending; "Become a Sponsor" copy about donating 
 closest-to-the-pin prize is real), Our Payout Tables (pulled from
 `Breck_Payout_Calculator_Advanced.xlsx`, see below, now also has an interactive calculator), the
 Course Records stats tab (real computation, see "Course Records manual exclusions" below), Ace
-Gallery (all 17 known aces populated with hole/name/date/amount — only the per-ace photo and
-"playing with" field are still placeholders), and Calendar (real month-grid, see "Events
-Calendar" below).
+Gallery (all 17 known aces populated with hole/name/date/amount/playing-with — only the per-ace
+photo is still a placeholder; see "Ace Gallery playing-with data" below for how that was
+derived), Calendar (real month-grid, see "Events Calendar" below), and Strike Tracker (real 2026
+strike data, see "Strike Tracker data" below — the strike *rules* are still undocumented).
 
 ## Player name shortening (privacy)
 
@@ -137,6 +139,15 @@ all-time grand total. Two parts, added together:
    (they're a separate pot, unrelated to event placement). **This must be updated by hand in
    `src/app.js` every time a new ace is added to `site/gallery/ace-gallery.html`** — the two
    have no shared source of truth. Search `ACE_TOTAL_PAID` and `ACE_COUNT` when updating.
+
+**Also duplicated on the homepage** (`site/home.html`, 2026-07-17, user request: "put the payout
+total under the hero section"): since `home.html` is a standalone static page with no access to
+`src/app.js`'s bundle, it has its **own** copy of the same computation (`parsePay`,
+`ACE_TOTAL_PAID`, `ACE_COUNT`) in an inline `<script>`, fetching `artifact_data.json` client-side
+instead of having it embedded. **Three places now need updating in sync whenever a new ace is
+added**: `src/app.js`, `site/home.html`, and `site/gallery/ace-gallery.html`'s own tally banner
+(`.tally-figure` text + the aces-count figure) — there's still no shared source of truth between
+them, same caveat as above just one file wider.
 
 ## Payout Calculator + Tuesday live-count automation
 
@@ -228,6 +239,53 @@ client-side.
   converts through UTC and shifts the date by one for any visitor browsing from a timezone ahead
   of UTC (local midnight is still "yesterday" in UTC there). Use the local `toIso()` helper
   already in the file (built from `getFullYear()`/`getMonth()`/`getDate()`) instead.
+
+## "Next upcoming event" widget (2026-07-17)
+
+`site/home.html` and `site/contact/join-us.html` each have their own copy of the same small
+inline script: fetch `data/upcoming-events.json` (the same file the Calendar reads, produced by
+`scripts/scrape-udisc.js`), find the earliest entry whose date is today or later, and replace a
+paragraph's placeholder text (`#nextEventText`) with "Next Weekly Mini: `<Weekday, Month Day>` at
+6:00 PM at Breckinridge Park...". User request: "just put our upcoming event with information"
+on both pages, replacing the old generic "we meet every Tuesday" copy. If the fetch fails or
+there's no future event in the file, the original static fallback text stays in place (the
+`<p>`'s initial content) — no error state, it just doesn't get replaced. Note the relative fetch
+path differs by page depth: `data/upcoming-events.json` from root-level `home.html`,
+`../data/upcoming-events.json` from one-level-deep `contact/join-us.html` — same
+`{{ROOT}}`-style depth gotcha as the shared header, just not templated since there are only two
+copies. If a third page needs this, consider extracting it instead of copy-pasting a third time.
+
+## Ace Gallery playing-with data (2026-07-17)
+
+Each ace's "Playing with" list was derived by searching `artifact_data.json` for a round
+matching that player's name and date, then reading who else was on the same card. Two of the 17
+didn't match on an exact name+date search and needed manual digging (documented here in case a
+future ace needs the same treatment):
+- **Hector Gonzalez, 2025-03-11** — stored in the data as just `"Hector G"` (already
+  abbreviated at the source, unrelated to this site's own name-shortening feature) — matching
+  needs to tolerate that, not just full "Gonzalez".
+- **Andrew Fred Harris, 2024-08-12** — no event exists on that exact date; the nearest Weekly
+  Mini was 2024-08-13, and an "Andrew Harris" (unique in the whole roster) played that day. Used
+  that round on the assumption the user's date was off by one — flagged here in case that
+  assumption turns out wrong and needs correcting.
+
+Names in the "Playing with" lists were shortened by hand to match the site's "First L."
+convention (see "Player name shortening" above) using the *actual* `computeDisplayNames()`
+output for collision-correctness (e.g. `Jonathan Johnson` → `Jonathan Jo.`, not the naive
+`Jonathan J.`, because there are multiple Jonathans in the roster) — not eyeballed. If more aces
+get added, recompute with the same algorithm rather than guessing at the right number of
+letters; see `computeDisplayNames()` in `src/app.js` for the reference implementation.
+
+## Strike Tracker data (2026-07-17)
+
+`resources/strike-tracker.html` has real 2026 strike data (user-supplied, verbatim): MA1 (Erik
+H., Jacob G., 1 strike each), MA3 (Ryne B., Wayne C., Sean G., Ethan V., Dawson B., JP S., Sam
+P., 1 strike each). Rendered as one `❌` per strike (per the user: "Each x is a strike"), no
+divisions currently have more than one. **The strike *rules* are not documented anywhere** —
+what earns a strike, how many before a consequence, etc. — don't invent them if asked what a
+strike means; that's still an open question for the user. Names are shortened by hand the same
+way as the Ace Gallery (see above), not run through `dn()` since this is a static page with no
+access to `src/app.js`.
 
 ## Stats dashboard build system (added in Claude Code, post-handoff)
 

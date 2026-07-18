@@ -15,6 +15,31 @@ test('home page loads with no console errors', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('home page shows the total-paid-out banner and the next upcoming event', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#moneyPaidOutBanner .tally-figure')).toHaveText(/^\$[\d,]+$/);
+  await expect(page.locator('#nextEventText')).toContainText('Next Weekly Mini:');
+});
+
+test('join us page shows the next upcoming event', async ({ page }) => {
+  await page.route('**/data/upcoming-events.json', (route) => route.fulfill({
+    contentType: 'application/json',
+    body: JSON.stringify({ updatedAt: '2026-07-17T00:00:00.000Z', events: [
+      { slug: 'future-event', title: 'Weekly Mini - All Welcome!!!', date: '2099-01-06' },
+    ] }),
+  }));
+  await page.goto('/contact/join-us.html');
+  await expect(page.locator('#nextEventText')).toContainText('Next Weekly Mini: Tuesday, January 6');
+});
+
+test('strike tracker shows MA1 and MA3 strikes', async ({ page }) => {
+  await page.goto('/resources/strike-tracker.html');
+  await expect(page.getByText('Erik H.')).toBeVisible();
+  await expect(page.getByText('Sam P.')).toBeVisible();
+  const marks = await page.locator('.data-table').getByText('❌').count();
+  expect(marks).toBe(9); // 2 in MA1 + 7 in MA3
+});
+
 test('every nav dropdown opens and every internal link resolves', async ({ page, request }) => {
   await page.goto('/');
   const toggle = page.locator('#navToggle');
@@ -142,6 +167,15 @@ test('payout calculator auto-fills from data/live-event-count.json when present'
   // Manually changing the player count is a deliberate override -- the auto-fill note goes away.
   await page.selectOption('#calcPlayers', '10');
   await expect(note).toBeHidden();
+});
+
+test('ace gallery has playing-with info for every ace, no leftover placeholders', async ({ page }) => {
+  await page.goto('/gallery/ace-gallery.html');
+  await expect(page.locator('.ace-card')).toHaveCount(17);
+  await expect(page.getByText('not recorded')).toHaveCount(0);
+  const playingWith = await page.locator('.ace-meta', { hasText: 'Playing with:' }).allTextContents();
+  expect(playingWith.length).toBe(17);
+  for (const text of playingWith) expect(text.trim()).not.toBe('Playing with:');
 });
 
 test('calendar shows events and can browse to a specific past month', async ({ page }) => {

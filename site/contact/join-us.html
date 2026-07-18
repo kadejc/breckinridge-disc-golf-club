@@ -2,6 +2,22 @@
 <div class="wrap">
   <h1>Join Us</h1>
   <div class="page-section">
-    <p>We meet every Tuesday at 6:00 PM at Breckinridge Park for the Weekly Mini. Everyone is welcome — no sign-up required, just show up with a disc.</p>
+    <p id="nextEventText">We meet every Tuesday at 6:00 PM at Breckinridge Park for the Weekly Mini. Everyone is welcome — no sign-up required, just show up with a disc.</p>
   </div>
 </div>
+
+<script>
+// Same pattern as site/home.html's next-upcoming-event widget.
+(function(){
+  fetch('../data/upcoming-events.json').then(function(r){ return r.json(); }).then(function(data){
+    var events = (data.events || []).slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+    var todayIso = new Date().toISOString().slice(0,10);
+    var next = events.find(function(e){ return e.date >= todayIso; });
+    if(!next) return;
+    var d = new Date(next.date + 'T00:00:00');
+    var dateLabel = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    document.getElementById('nextEventText').textContent =
+      'Next Weekly Mini: ' + dateLabel + ' at 6:00 PM at Breckinridge Park. Everyone is welcome — no sign-up required, just show up with a disc.';
+  }).catch(function(){});
+})();
+</script>
