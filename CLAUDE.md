@@ -330,14 +330,13 @@ letters; see `computeDisplayNames()` in `src/app.js` for the reference implement
 
 ## Ace Gallery photos (2026-07-17)
 
-`images/ace gallery/` has 14 JPGs sourced from Facebook (via the CDN, so they came in with
+`images/ace gallery/` has 15 JPGs sourced from Facebook (via the CDN, so they came in with
 hashed filenames and zero usable EXIF — Facebook strips it, confirmed via Pillow). No
 metadata-based or facial-recognition matching was possible. The user resolved this by manually
 renaming each file to the ace-holder's real name (e.g. `Dillon Dyer.jpg`, `Sean Gallina.jpg`),
 which `site/gallery/ace-gallery.html` now references directly (`../images/ace%20gallery/<name>.jpg`,
-URL-encoded for the space and, where present, the `&`). 16 of the 17 aces have a photo; **Hayden
-F. (hole 6, 2024-05-07) has no photo** and still shows the `.ace-photo-placeholder` "Photo coming
-soon" box — there is no 15th file to match it to.
+URL-encoded for the space and, where present, the `&`). All 17 aces now have a photo — Hayden F.
+(hole 6, 2024-05-07) was the last one missing and was added later as `Hayden Frederiksen.jpg`.
 
 Two of the 14 files are double-ace photos (one photo, two `<img>` references, same pattern used
 twice):
