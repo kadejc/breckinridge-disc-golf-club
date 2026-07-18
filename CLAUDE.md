@@ -340,6 +340,18 @@ person's name** (first name "Ace", last name "Wall"), matching the ace-name `Ace
 aces get photos later, add the file to `images/ace gallery/`, named after the person, and swap
 that entry's placeholder `<div>` for an `<img class="ace-photo">` the same way.
 
+**Layout consolidated to one grid (2026-07-18)**: `site/gallery/ace-gallery.html` used to have
+one `.page-section` + `.ace-grid` per hole, each with its own `<h2 class="ace-hole-heading">`.
+With 6 of the 10 holes having only one ace, `grid-template-columns:
+repeat(auto-fill, minmax(...))` still reserved empty trailing column tracks for those
+single-card grids, leaving a lot of dead space next to a lone card, on top of every section's
+`36px` padding + divider border stacking up (`.page-section` in `shared/site.css`). Fixed by
+flattening to a single `.page-section` with one `.ace-grid` holding all 17 cards, with the hole
+number moved onto each card as a small `.ace-hole-badge` label (above the name) instead of a
+section heading. `.ace-hole-heading` was removed from `shared/site.css` as dead code. If more
+aces are added later, just insert another card into the one grid in hole order — no new
+section/heading needed.
+
 ## Strike Tracker data (2026-07-17)
 
 `resources/strike-tracker.html` has real 2026 strike data (user-supplied, verbatim): MA1 (Erik
