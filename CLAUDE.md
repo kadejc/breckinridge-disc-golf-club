@@ -126,8 +126,9 @@ per top-level section — the user explicitly asked for each dropdown option to 
   `.placeholder-note`, `.data-table`, `.photo-grid`, etc). Marketing pages link it externally;
   `stats.html`/`breckinridge_artifact.html` inline it (see below) since those must stay
   self-contained.
-- `shared/site-header.html` / `shared/site-footer.html` — the global header (brand + 9-item
-  dropdown nav) and footer, shared by every page including the stats dashboard. Internal links
+- `shared/site-header.html` / `shared/site-footer.html` — the global header (brand + 4-item
+  dropdown nav — see "Nav restructure" below for why it's 4 and not the original 8) and footer,
+  shared by every page including the stats dashboard. Internal links
   use a `{{ROOT}}` placeholder (e.g. `{{ROOT}}about/who-we-are.html`) since the same partial is
   used at two different depths: root-level pages (`index.html`, `stats.html`) need `''`,
   one-level-deep content pages (`about/*.html` etc.) need `'../'`. `scripts/build-site.js`
@@ -167,6 +168,107 @@ manual exclusions" below), Ace Gallery (all 17 known aces populated with
 hole/name/date/amount/playing-with *and* a real photo — see "Ace Gallery photos" below for how
 photos were matched), and Strike Tracker (real 2026 strike data, see "Strike Tracker data" below
 — the strike *rules* are still undocumented).
+
+## Nav restructure: 8 categories → 4 (2026-07-19)
+
+User feedback: "I think we have too much on the site" — asked to simplify, then specified the
+actual reasons people visit: (1) look up their own stats, (2) see member achievements/
+improvement, (3) info about the mini/announcements. Explicitly **de-prioritized** "who we are"
+and "resources." This was a full reorganization of `shared/site-header.html`'s nav, not a content
+cut — every existing page still exists, nothing was deleted, only regrouped:
+
+- **Stats** (unchanged, 6 items) + **Past Results** (moved in from the old Events dropdown —
+  it's historical results data, fits better here than under a forward-looking "what's coming up"
+  menu) → 7 items total.
+- **Achievements** (new) — Ace Gallery (moved from the old Gallery dropdown) + Strike Tracker
+  (moved from the old Resources dropdown). This is the "achievements/improvement" priority made
+  its own first-class nav item instead of being buried in unrelated dropdowns.
+- **Weekly Mini** (new, replaces the old Contact + most of Events + News) — Join Us,
+  Announcements, Tournament Schedule (external). Purely forward-looking ("how do I show up this
+  week"); Past Results moved out to Stats as noted above.
+- **More** (new catch-all, replaces the old About + Resources + Rules & Etiquette + the leftover
+  half of Contact) — everything de-prioritized, in three labeled sub-groups inside one dropdown
+  (`.nav-dropdown-label` — a small uppercase divider, not a link) so 13 items in one menu don't
+  read as an undifferentiated wall of text: **Club** (Who we are, Sponsors, Gallery/photos, FAQ,
+  Club Bylaws), **Course & Rules** (Course Info, Our Payout Tables, Book the course, Local Rules,
+  PDGA Rules), **Connect** (Apply to help, Social Media, Newsletter Signup). `.nav-dropdown` grew
+  `max-height: 75vh; overflow-y: auto` in `shared/site.css` to handle a menu this long on short
+  viewports — a generic safety net, not specific to "More," so it won't need revisiting if More
+  grows further.
+
+The old plain (unlabeled, non-`gallery/photos.html`) "Gallery" dropdown label is gone — that link
+now lives inside More's "Club" group, just titled "Gallery"; don't confuse it with Ace Gallery,
+which moved to the new Achievements dropdown.
+
+`tests/smoke.spec.js`'s `NAV_ITEMS` was updated to `['Stats', 'Achievements', 'Weekly Mini',
+'More']` to match — if the nav top-level labels change again, that array is the only place the
+test needs updating (the "every nav dropdown opens and every internal link resolves" test reads
+sub-items dynamically from the DOM, not hardcoded).
+
+**Homepage cards** (`site/home.html`) were relabeled to mirror the same three priorities instead
+of generic "League Stats / Join Us / Facebook Group": **Your Stats** (→ `stats.html#player`, the
+Player Lookup tab directly, not the dashboard's default landing tab — the point is one click to
+*your own* numbers), **Achievements** (→ `gallery/ace-gallery.html`), **This Week** (same
+next-event widget as before, just relabeled from "Join Us"). The Facebook Group card was dropped
+from the homepage grid entirely — it's still linked from `shared/site-footer.html`, so it's not
+gone, just no longer competing for attention at the same visual weight as the three priorities.
+
+## Homepage intro animation (2026-07-19)
+
+By request: "a disc spinning into the basket and then it explodes into the site." Lives entirely
+in `site/home.html` (markup + a page-scoped `<style>` block + a page-scoped `<script>` block, all
+inline in that one file) — **homepage-only by design**, nothing shared with `shared/site.css` or
+other pages, since an intro is inherently a one-time landing-page thing, not a sitewide component.
+If asked to add it to other pages, that's a deliberate scope change to flag back, not an oversight
+to "fix."
+
+**How it works**: one SVG (`viewBox="0 0 400 400"`) contains a static basket (`#introBasket`,
+drawn with plain SVG shapes — pole, chain-support ellipse, six chain lines, a basket-bin path),
+a disc (`#introDisc`, two concentric ellipses so it reads as a disc viewed edge-on, which also
+means the CSS `rotate()` spin makes it visibly tumble rather than looking like a static dot
+spinning in place), and a burst group (`#introBurst`: a flash `<circle>` plus 10 `<line>` shards
+generated by a small JS loop at 36° increments, using a `--a` custom property per shard so one
+shared `@keyframes` handles all of them via `rotate(var(--a)) translateX(...)`). All three are
+driven by CSS `@keyframes` with staggered `animation-delay`, not JS-driven per-frame updates —
+JS's only jobs are gating (see below), building the 10 shard elements once, adding the `.play`
+class that starts every keyframe at once, and listening for the *overlay's own* fade-out
+`animationend` to remove it from the DOM. Total sequence: disc flight 1.6s → burst
+(flash+shards) starts at 1.45s delay, 0.6s duration, deliberately overlapping the disc's arrival
+for impact instead of a gap → overlay itself fades 1.85s→2.4s, then gets `.remove()`d.
+
+**Gating (three independent checks, all must allow it to play)**:
+1. `prefers-reduced-motion: reduce` — checked in JS (`matchMedia`) and *also* enforced with a
+   plain CSS `@media` rule that hides `.intro-overlay` outright, so even if the JS check were
+   ever removed by accident, the animation still can't play for those users.
+2. `sessionStorage.getItem('introSeen')` — plays once per browser session, not once ever
+   (`sessionStorage`, not `localStorage`) and not on every single homepage visit. This was a
+   judgment call, not a user spec — if they want "every visit" or "only the very first time
+   ever," swap the storage mechanism (drop the check entirely, or switch to `localStorage`).
+3. A "Skip intro" button, top-right, always present — clicking it adds a `.skip-instant` class
+   (hard-disables the animation/transition via `!important`, since just removing `.play` mid-
+   animation wouldn't necessarily stop an already-running CSS animation cleanly) and calls the
+   same `finish()` cleanup as a natural end (removes the overlay, restores `document.documentElement`'s
+   `overflow`, sets the sessionStorage flag).
+
+**Playwright gotcha, already handled — don't reintroduce it**: the overlay is
+`position: fixed; inset: 0; z-index: 9999`, so for ~2.4s it covers (and blocks clicks on) the
+entire page including the nav header. `tests/smoke.spec.js` has a `test.beforeEach` that calls
+`page.addInitScript(() => sessionStorage.setItem('introSeen', '1'))` — this runs before any
+page script on *every* test in the file (not just the ones that visit `/`), so the intro's own
+`alreadySeen` check sees it and calls `overlay.remove()` before the animation ever starts. If a
+future test needs to verify the intro's actual visual behavior, it'll need to *not* use this
+shared `beforeEach` (or override it) — currently no test does.
+
+**Verifying visually was unusually hard in this session's tooling**: the Browser pane tool
+reported `document.hidden: true` / `visibilityState: 'hidden'` for the tab even after explicitly
+fronting it, which pauses both `requestAnimationFrame` and (apparently) real-time CSS animation
+progression — waiting real wall-clock seconds and re-checking showed zero progress. Worked around
+it with the Web Animations API instead: `element.getAnimations()[0].currentTime = <ms>` jumps an
+animation to an exact point instantly regardless of tab visibility, which is how the disc's
+flight path, the burst radius/opacity, and the overlay fade were all confirmed correct (exact
+matrix/computed-style values checked at specific timestamps, not by watching it play). If this
+comes up again for any future animation work, `getAnimations()` + `currentTime` is the reliable
+verification path in this environment — don't waste turns retrying real-time waits.
 
 ## Player name shortening (privacy)
 

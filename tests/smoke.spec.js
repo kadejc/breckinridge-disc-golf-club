@@ -1,10 +1,14 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
-const NAV_ITEMS = [
-  'About', 'Resources', 'Stats', 'Gallery', 'Contact',
-  'Events', 'Rules & Etiquette', 'News',
-];
+const NAV_ITEMS = ['Stats', 'Achievements', 'Weekly Mini', 'More'];
+
+// The homepage intro animation (disc-into-basket) covers the full viewport for ~2.4s on first
+// visit -- skip it in every test the same way a returning visitor would (sessionStorage flag),
+// so it doesn't block clicks on nav/hero elements underneath. See site/home.html.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('introSeen', '1'));
+});
 
 test('home page loads with no console errors', async ({ page }) => {
   const errors = [];

@@ -1,4 +1,107 @@
 <!-- title: Home -->
+<div class="intro-overlay" id="introOverlay" aria-hidden="true">
+  <button class="intro-skip" id="introSkip" type="button">Skip intro</button>
+  <svg class="intro-scene" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice">
+    <g id="introBasket" transform="translate(200,230)">
+      <rect x="-2" y="-6" width="4" height="86" fill="var(--ink-soft)"/>
+      <ellipse cx="0" cy="-38" rx="34" ry="8" fill="none" stroke="var(--champagne)" stroke-width="2"/>
+      <g stroke="var(--champagne)" stroke-width="1.3" opacity="0.85">
+        <line x1="-30" y1="-36" x2="-14" y2="8"/>
+        <line x1="-18" y1="-39" x2="-6" y2="8"/>
+        <line x1="-6" y1="-40" x2="0" y2="8"/>
+        <line x1="6" y1="-40" x2="0" y2="8"/>
+        <line x1="18" y1="-39" x2="6" y2="8"/>
+        <line x1="30" y1="-36" x2="14" y2="8"/>
+      </g>
+      <path d="M -20 8 Q 0 24 20 8 L 16 22 Q 0 32 -16 22 Z" fill="var(--emerald)" stroke="var(--champagne)" stroke-width="1.5"/>
+    </g>
+    <g id="introDisc">
+      <ellipse cx="0" cy="0" rx="22" ry="9" fill="var(--champagne)" stroke="var(--emerald)" stroke-width="2"/>
+      <ellipse cx="0" cy="0" rx="12" ry="5" fill="var(--emerald)"/>
+    </g>
+    <g id="introBurst" transform="translate(200,225)">
+      <circle id="introFlash" cx="0" cy="0" r="0" fill="var(--champagne)" opacity="0"/>
+      <g id="introShards" stroke="var(--champagne)" stroke-width="2.5"></g>
+    </g>
+  </svg>
+</div>
+<style>
+.intro-overlay {
+  position: fixed; inset: 0; z-index: 9999; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+}
+.intro-scene { width: 100%; height: 100%; }
+.intro-skip {
+  position: absolute; top: 20px; right: 20px; z-index: 2;
+  background: transparent; border: 1px solid var(--border); color: var(--ink-soft);
+  box-shadow: none; font-size: 12px; padding: 8px 14px;
+}
+.intro-skip:hover { background: var(--surface-alt); color: var(--ink); box-shadow: none; transform: none; }
+#introDisc { opacity: 0; transform-origin: 0 0; }
+.intro-overlay.play #introDisc {
+  animation: introDiscFly 1.6s cubic-bezier(.45,.05,.55,.95) forwards;
+}
+@keyframes introDiscFly {
+  0%   { transform: translate(10px,380px) scale(.5) rotate(0deg); opacity: 0; }
+  8%   { opacity: 1; }
+  30%  { transform: translate(90px,150px) scale(.75) rotate(420deg); }
+  55%  { transform: translate(230px,50px) scale(.9) rotate(760deg); }
+  80%  { transform: translate(295px,175px) scale(1.05) rotate(1100deg); }
+  100% { transform: translate(200px,225px) scale(.85) rotate(1380deg); opacity: 1; }
+}
+.intro-overlay.play #introFlash { animation: introFlash .6s ease-out 1.45s forwards; }
+@keyframes introFlash {
+  0%   { r: 0; opacity: .95; }
+  60%  { opacity: .5; }
+  100% { r: 170; opacity: 0; }
+}
+.intro-overlay.play .intro-shard { animation: introShardBurst .6s ease-out 1.45s forwards; }
+@keyframes introShardBurst {
+  0%   { transform: rotate(var(--a)) translateX(0px); opacity: 1; }
+  100% { transform: rotate(var(--a)) translateX(60px); opacity: 0; }
+}
+.intro-overlay.play { animation: introOverlayOut .55s ease-in 1.85s forwards; }
+@keyframes introOverlayOut { to { opacity: 0; visibility: hidden; } }
+.intro-overlay.skip-instant { transition: none !important; animation: none !important; opacity: 0 !important; visibility: hidden !important; }
+@media (prefers-reduced-motion: reduce) {
+  .intro-overlay { display: none; }
+}
+</style>
+<script>
+(function(){
+  var overlay = document.getElementById('introOverlay');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var alreadySeen = sessionStorage.getItem('introSeen');
+  function finish(){
+    overlay.remove();
+    document.documentElement.style.overflow = '';
+    sessionStorage.setItem('introSeen', '1');
+  }
+  if(reduceMotion || alreadySeen){
+    overlay.remove();
+    return;
+  }
+  // Build the 10 burst shards (radial lines) once, before playing.
+  var shardsGroup = document.getElementById('introShards');
+  for(var i = 0; i < 10; i++){
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', '0'); line.setAttribute('y1', '0');
+    line.setAttribute('x2', '16'); line.setAttribute('y2', '0');
+    line.setAttribute('class', 'intro-shard');
+    line.style.setProperty('--a', (i * 36) + 'deg');
+    shardsGroup.appendChild(line);
+  }
+  document.documentElement.style.overflow = 'hidden';
+  overlay.addEventListener('animationend', function(e){
+    if(e.target === overlay) finish();
+  });
+  document.getElementById('introSkip').addEventListener('click', function(){
+    overlay.classList.add('skip-instant');
+    finish();
+  });
+  requestAnimationFrame(function(){ overlay.classList.add('play'); });
+})();
+</script>
 <div class="hero">
   <h1>Breckinridge Disc Golf Club</h1>
   <p>Home of the Breckinridge DGC Weekly Mini — an 18-hole league that meets every Tuesday at 6:00 PM. Everyone is welcome.</p>
@@ -6,19 +109,19 @@
 <div class="wrap">
   <div class="grid-3">
     <div class="card">
-      <h3 style="margin-top:0;">League Stats</h3>
-      <p style="color:var(--ink-soft); font-size:14px;">Standings, player lookups, hole-by-hole breakdowns, and full round-by-round history for every logged event.</p>
-      <a class="btn" href="stats.html">View Stats</a>
+      <h3 style="margin-top:0;">Your Stats</h3>
+      <p style="color:var(--ink-soft); font-size:14px;">Look up your own standings, wins, and hole-by-hole history — or browse the full leaderboard.</p>
+      <a class="btn" href="stats.html#player">Find My Stats</a>
     </div>
     <div class="card">
-      <h3 style="margin-top:0;">Join Us</h3>
+      <h3 style="margin-top:0;">Achievements</h3>
+      <p style="color:var(--ink-soft); font-size:14px;">Aces, course records, and the strike tracker — see who's been putting in work.</p>
+      <a class="btn" href="gallery/ace-gallery.html">See Achievements</a>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;">This Week</h3>
       <p id="nextEventText" style="color:var(--ink-soft); font-size:14px;">Weekly Mini rounds every Tuesday at 6:00 PM at Breckinridge Park. Sign-up is required — sign-ups start at 5:30 PM.</p>
       <a class="btn" href="contact/join-us.html">Learn More</a>
-    </div>
-    <div class="card">
-      <h3 style="margin-top:0;">Facebook Group</h3>
-      <p style="color:var(--ink-soft); font-size:14px;">Announcements, results, and league chatter happen in our Facebook group.</p>
-      <a class="btn" href="https://www.facebook.com/groups/1035235994452368" target="_blank" rel="noopener">Join the Group</a>
     </div>
   </div>
 </div>
