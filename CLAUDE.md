@@ -18,32 +18,47 @@ headings, nav, buttons, brand, and stat/money figures; **Inter** (400/500/600/70
 Cards, buttons, the hero, and the tally banner all got shadow/radius/gradient polish; buttons
 specifically have a gradient fill + lift-on-hover (`transform: translateY`).
 
-**Color scheme, current (dark theme, changed same day)**: user asked for "a blackish background
-with maybe green as an accent color" shortly after the initial (light-background, red-accent)
-redesign shipped — this is a from-scratch retheme, not a tweak. `--bg: #0c0e0e` (near-black),
-`--surface: #16191a` (card bg, one step lighter), `--surface-alt: #1c2021` (table
-stripes/sticky-header backgrounds, replacing the light theme's hardcoded near-white hex like
-`#fafaf8` — grep for stray light hex literals if extending this further, don't assume every
-color reference is a var). `--accent: #34c576` (green) replaces the old red as the brand color
-for nav/links/buttons/focus rings. `--on-accent: #06120c` (near-black) is used as *text* color
-anywhere it sits on a solid `--accent` fill (buttons, `.payout-tab-btn.active`,
-`.toggle-pill.checked`) — dark text on bright green reads more premium than white-on-green and
-has better contrast. `--gold`/`--gold-dark` (bright amber, `.ace-amount`) is unchanged in role —
-still the "money as a highlight" color, distinct from the brand accent, and now doubly useful
-since it contrasts against both dark surfaces and the new green. Two tokens exist specifically
-because green stopped being available as a "negative" signal color: `--red`/`--red-tint` (added)
-now back `.pill.neg` (over-par / bad, in the stats dashboard's to-par formatting) — **do not**
-point that at `--accent` again, since `--accent` is green now and green-for-bad would invert the
-meaning of the pill. `.pill.pos` (under-par / good) intentionally aliases straight to the brand
-accent (`--green: var(--accent)`) since "good" and "brand" are the same color now by coincidence,
-not by hardcoding — if the brand accent ever changes again, `--green` follows it automatically
-without a separate edit. Shadows changed shape too, not just color: light-theme shadows were
-soft/large-blur black-on-white; dark-theme cards mostly read as "raised" via the 1px light
-`--border` plus a modest `rgba(0,0,0,...)` shadow, since a card *lighter* than the page background
-needs a visible edge more than it needs a cast shadow (a dark shadow under a card that's already
-near-black barely shows). If asked to lighten the theme again later, revisit shadow *opacity*
-values too, not just the color tokens — they were tuned for a dark page, not for reuse as-is on
-light.
+**Color scheme, current (Emerald Ink + Champagne on black, 2026-07-19)**: went through two
+follow-up retheme requests the same day the initial redesign shipped — first "a blackish
+background with maybe green as an accent color" (a generic bright green, `#34c576`), then this
+was superseded almost immediately by an explicit brand pair: **"Emerald Ink #064E3B and
+Champagne #F8E7C9 as accent colors on a black background."** Each retheme was a from-scratch
+token swap, not a tweak on top of the last — if asked to change colors again, expect the same:
+rewrite the `:root` block in both CSS files rather than patching individual hex values.
+
+The two given colors don't play symmetric roles, and that's deliberate, not an oversight:
+- `--champagne: #F8E7C9` is light and reads clearly on black, so it became `--accent` — the
+  color used for links, nav hover, buttons, focus rings, brand-sub, tally figures, and
+  `--gold` (aliased: `--gold: var(--champagne)`, so `.ace-amount` money figures use it too).
+- `--emerald: #064E3B` is dark (barely brighter than the page background itself), so it would
+  make illegible text/links directly on black. Instead it's used as a **translucent wash**
+  (`--accent-tint: rgba(6,78,59,0.35)`) for hover/active backgrounds behind champagne text, and
+  as a stronger, higher-opacity radial glow in the hero and body background gradients (needs
+  roughly 2-3x the opacity a bright color would to read as a visible glow against black — see
+  the literal `rgba(6,78,59,0.3-0.55)` values scattered through `shared/site.css`/`src/style.css`
+  if tuning this further).
+- `--on-accent: var(--emerald)` — text color for anything sitting on a *solid* champagne fill
+  (buttons, `.payout-tab-btn.active`, `.toggle-pill.checked`). Deep emerald text on a champagne
+  button is the one place both exact brand hexes appear together directly, and it's intentional:
+  don't "fix" this to black or white text, the emerald-on-champagne pairing is the point.
+- `--border`/`--border-soft` are low-opacity champagne (`rgba(248,231,201,0.14/0.07)`), not
+  neutral gray — a deliberate "gold hairline on black" look applied to every card/table edge
+  sitewide, not just accent moments. If this ever reads as too busy, that's the value to dial
+  down first.
+- `--green`/`--green-tint` (for `.pill.pos`, under-par/good in the stats dashboard's to-par
+  formatting) is **not** an alias of `--accent` anymore, because `--accent` is champagne now, not
+  green — `--green: #23a878` is a standalone brighter derivative of Emerald Ink, picked purely
+  for legibility as small pill text (raw `#064E3B` is too dark/muddy at that size). `--red`/
+  `--red-tint` (`.pill.neg`, over-par/bad) is untouched from the prior pass and still independent
+  of the brand accent — this three-way split (brand accent ≠ "good" semantic color ≠ "bad"
+  semantic color) is intentional; don't collapse any two of them to "simplify."
+- `--ink: #f5f1e8` is a warm off-white (not neutral/cool white) so body text feels cohesive with
+  the champagne accent rather than competing with it.
+
+Shadows/surfaces are unchanged in *structure* from the prior dark-theme pass (neutral
+`--surface: #121212` / `--surface-alt: #1a1a1a`, black-based `rgba(0,0,0,...)` shadow tokens) —
+only the accent-colored glows layered on top of buttons/cards/hero changed hue, from green to
+champagne/emerald.
 
 **Critical gotcha, don't lose this**: there are **two CSS files that must be kept in visual sync
 by hand** — `shared/site.css` (linked by every marketing page under `site/**`) and
