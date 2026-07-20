@@ -9,6 +9,46 @@ site (About, Resources, Stats, Gallery, Contact, Events, Rules & Etiquette, News
 Membership**, see below) in Claude Code. This file exists so a fresh Claude Code session in this
 repo has full context without the user having to re-explain everything.
 
+## Design system (2026-07-19)
+
+Full visual redesign by request ("make this look like it was done by a top designer" — the
+prior look was the default Cowork styling, described by the user as "very plain"). Two fonts via
+Google Fonts CDN (`<link>` tags, no self-hosting): **Space Grotesk** (500/600/700/800) for all
+headings, nav, buttons, brand, and stat/money figures; **Inter** (400/500/600/700) for body text.
+Color tokens got a warmer/richer pass in `:root` — notably a new `--gold`/`--gold-dark` accent
+(used for `.ace-amount` and anywhere money should read as a highlight rather than an alert,
+distinct from `--accent` red) and a `--green`/`--green-tint` pair for the stats dashboard's
+positive `.pill`. Cards, buttons, the hero, and the tally banner all got shadow/radius/gradient
+polish; buttons specifically now have a gradient fill + lift-on-hover (`transform: translateY`).
+
+**Critical gotcha, don't lose this**: there are **two CSS files that must be kept in visual sync
+by hand** — `shared/site.css` (linked by every marketing page under `site/**`) and
+`src/style.css` (the stats dashboard's own stylesheet, concatenated *after* `site.css` into one
+inline `<style>` block by `scripts/build.js` — see `render()`: `sharedCss + '\n' + baseCss`).
+Both files declare their own `:root` token block plus duplicate base rules (`.site-header`,
+`.brand-title`, `.brand-sub`, `.wrap`, `.card`, `button`) — this predates the redesign, but it
+means **`src/style.css` loading second wins any conflicting property**, so a token/base-style
+change made only in `shared/site.css` silently won't apply to `stats.html`/
+`breckinridge_artifact.html` unless mirrored into `src/style.css` too. There is still no shared
+source of truth between them (same category of duplication as `ACE_COUNT` etc. elsewhere in this
+doc) — when touching design tokens or shared component classes, grep both files.
+
+**Bug found and fixed during this pass, worth remembering**: the generic `button { color: #fff;
+... }` rule (needed for the new gradient-fill buttons) silently made `.nav-toggle` (the mobile
+hamburger, a bare `<button>`) render **white-on-white and invisible**, because `.nav-toggle`
+overrides `background` but never declared its own `color` — so the tag-level rule's white text
+leaked through even though `.nav-toggle`'s class selector has higher specificity for the
+properties it *does* set. Fixed by adding an explicit `color: var(--ink)` to `.nav-toggle`. The
+general lesson: **any bare `<button>` (no distinguishing class, or a class that doesn't set every
+property the generic `button` rule sets) needs an explicit color check** after future button
+style changes — search for `<button` across `site/**/*.html`, `shared/site-header.html`, and any
+JS that generates `<button>` markup (currently none does; all JS-rendered tabs use `<div
+class="tab">`, not `<button>`).
+
+Fonts are loaded via `<link>` tags added in two places (same duplication pattern as the CSS):
+`scripts/build-site.js`'s HTML template (marketing pages) and `src/head.html` (stats dashboard).
+If the font choice ever changes, update both.
+
 ## Site structure
 
 Multi-page static site, shared header/footer, **one page per dropdown nav item** (not one page
