@@ -2,10 +2,11 @@
 <div class="intro-overlay" id="introOverlay" aria-hidden="true">
   <button class="intro-skip" id="introSkip" type="button">Skip intro</button>
   <svg class="intro-scene" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice">
-    <g id="introBasket" transform="translate(200,230)">
+    <g id="introLines" stroke="var(--champagne)" stroke-width="2" transform="translate(200,200)"></g>
+    <g id="introBasket">
       <rect x="-2" y="-6" width="4" height="86" fill="var(--ink-soft)"/>
-      <ellipse cx="0" cy="-38" rx="34" ry="8" fill="none" stroke="var(--champagne)" stroke-width="2"/>
-      <g stroke="var(--champagne)" stroke-width="1.3" opacity="0.85">
+      <ellipse cx="0" cy="-38" rx="34" ry="8" fill="none" stroke="var(--champagne)" stroke-width="2.5"/>
+      <g stroke="var(--champagne)" stroke-width="1.8" opacity="0.9">
         <line x1="-30" y1="-36" x2="-14" y2="8"/>
         <line x1="-18" y1="-39" x2="-6" y2="8"/>
         <line x1="-6" y1="-40" x2="0" y2="8"/>
@@ -13,16 +14,9 @@
         <line x1="18" y1="-39" x2="6" y2="8"/>
         <line x1="30" y1="-36" x2="14" y2="8"/>
       </g>
-      <path d="M -20 8 Q 0 24 20 8 L 16 22 Q 0 32 -16 22 Z" fill="var(--emerald)" stroke="var(--champagne)" stroke-width="1.5"/>
+      <path d="M -20 8 Q 0 24 20 8 L 16 22 Q 0 32 -16 22 Z" fill="var(--emerald)" stroke="var(--champagne)" stroke-width="2"/>
     </g>
-    <g id="introDisc">
-      <ellipse cx="0" cy="0" rx="22" ry="9" fill="var(--champagne)" stroke="var(--emerald)" stroke-width="2"/>
-      <ellipse cx="0" cy="0" rx="12" ry="5" fill="var(--emerald)"/>
-    </g>
-    <g id="introBurst" transform="translate(200,225)">
-      <circle id="introFlash" cx="0" cy="0" r="0" fill="var(--champagne)" opacity="0"/>
-      <g id="introShards" stroke="var(--champagne)" stroke-width="2.5"></g>
-    </g>
+    <circle id="introFlash" cx="200" cy="200" r="0" fill="var(--champagne)" opacity="0"/>
   </svg>
 </div>
 <style>
@@ -37,30 +31,30 @@
   box-shadow: none; font-size: 12px; padding: 8px 14px;
 }
 .intro-skip:hover { background: var(--surface-alt); color: var(--ink); box-shadow: none; transform: none; }
-#introDisc { opacity: 0; transform-origin: 0 0; }
-.intro-overlay.play #introDisc {
-  animation: introDiscFly 1.6s cubic-bezier(.45,.05,.55,.95) forwards;
+/* POV of the disc: the camera IS the disc, rushing forward + spinning toward the basket, so
+   there's no separate disc graphic to watch -- the whole scene rushes and spins instead. */
+#introBasket { transform: translate(200px,200px) scale(.12) rotate(0deg); transform-origin: 0 0; }
+.intro-overlay.play #introBasket {
+  animation: introRush .5s cubic-bezier(.45,0,.85,.4) forwards;
 }
-@keyframes introDiscFly {
-  0%   { transform: translate(10px,380px) scale(.5) rotate(0deg); opacity: 0; }
-  8%   { opacity: 1; }
-  30%  { transform: translate(90px,150px) scale(.75) rotate(420deg); }
-  55%  { transform: translate(230px,50px) scale(.9) rotate(760deg); }
-  80%  { transform: translate(295px,175px) scale(1.05) rotate(1100deg); }
-  100% { transform: translate(200px,225px) scale(.85) rotate(1380deg); opacity: 1; }
+@keyframes introRush {
+  0%   { transform: translate(200px,200px) scale(.12) rotate(0deg); }
+  100% { transform: translate(200px,200px) scale(4.4) rotate(900deg); }
 }
-.intro-overlay.play #introFlash { animation: introFlash .6s ease-out 1.45s forwards; }
+.intro-overlay.play .intro-line { animation: introLineOut .62s cubic-bezier(.3,0,.6,1) forwards; }
+@keyframes introLineOut {
+  0%   { opacity: 0; transform: rotate(var(--a)) translateX(0px); }
+  12%  { opacity: .85; }
+  60%  { transform: rotate(var(--a)) translateX(50px); opacity: .9; }
+  100% { transform: rotate(var(--a)) translateX(230px); opacity: 0; }
+}
+.intro-overlay.play #introFlash { animation: introFlash .32s ease-out .45s forwards; }
 @keyframes introFlash {
   0%   { r: 0; opacity: .95; }
-  60%  { opacity: .5; }
-  100% { r: 170; opacity: 0; }
+  50%  { opacity: .6; }
+  100% { r: 220; opacity: 0; }
 }
-.intro-overlay.play .intro-shard { animation: introShardBurst .6s ease-out 1.45s forwards; }
-@keyframes introShardBurst {
-  0%   { transform: rotate(var(--a)) translateX(0px); opacity: 1; }
-  100% { transform: rotate(var(--a)) translateX(60px); opacity: 0; }
-}
-.intro-overlay.play { animation: introOverlayOut .55s ease-in 1.85s forwards; }
+.intro-overlay.play { animation: introOverlayOut .3s ease-in .58s forwards; }
 @keyframes introOverlayOut { to { opacity: 0; visibility: hidden; } }
 .intro-overlay.skip-instant { transition: none !important; animation: none !important; opacity: 0 !important; visibility: hidden !important; }
 @media (prefers-reduced-motion: reduce) {
@@ -81,15 +75,15 @@
     overlay.remove();
     return;
   }
-  // Build the 10 burst shards (radial lines) once, before playing.
-  var shardsGroup = document.getElementById('introShards');
-  for(var i = 0; i < 10; i++){
+  // Build the 12 radiating speed lines once, before playing.
+  var linesGroup = document.getElementById('introLines');
+  for(var i = 0; i < 12; i++){
     var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', '0'); line.setAttribute('y1', '0');
-    line.setAttribute('x2', '16'); line.setAttribute('y2', '0');
-    line.setAttribute('class', 'intro-shard');
-    line.style.setProperty('--a', (i * 36) + 'deg');
-    shardsGroup.appendChild(line);
+    line.setAttribute('x2', '18'); line.setAttribute('y2', '0');
+    line.setAttribute('class', 'intro-line');
+    line.style.setProperty('--a', (i * 30) + 'deg');
+    linesGroup.appendChild(line);
   }
   document.documentElement.style.overflow = 'hidden';
   overlay.addEventListener('animationend', function(e){
